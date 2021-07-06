@@ -1,0 +1,13 @@
+server:
+  port: 5000
+
+
+telegrambot:
+  userName: "@tour_app_bot"
+  botToken: 1851213801:AAERzLNwhjZVDYtkIX6FdJmZxKX4EodDvLk
+  webHookPath: https://5adc44dd06f7.ngrok.io
+  telegramUrl: https://api.telegram.org/bot
+  botPath: webhook
+  reply:
+    start: НАЧАЛОСЬЬ
+    askLanguage: Выберите язык
