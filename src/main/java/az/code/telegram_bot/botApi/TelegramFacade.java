@@ -57,7 +57,6 @@ public class TelegramFacade {
         dataCache.setBotState(userId, botState);
         return inputMessageHandler.handle(message, botState, userId);
 //        String inputMsg = message.getText();
-//
 //        switch (inputMsg) {
 //            case "/start":
 //                botState = BotState.LANGUAGE;

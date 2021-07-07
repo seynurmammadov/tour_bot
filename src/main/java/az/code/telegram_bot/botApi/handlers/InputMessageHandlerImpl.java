@@ -6,6 +6,8 @@ import az.code.telegram_bot.models.enums.ActionType;
 import az.code.telegram_bot.models.enums.BotState;
 import az.code.telegram_bot.services.Interfaces.MessageService;
 import az.code.telegram_bot.services.Interfaces.QuestionService;
+import az.code.telegram_bot.utils.CalendarUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -44,6 +46,9 @@ public class InputMessageHandlerImpl implements MessageHandler {
                 break;
             case INLINE_BUTTON:
                 sendMessage = messageService.msgWithInlKeyboard(chatId, question, langId);
+                break;
+            case CALENDAR:
+                sendMessage = messageService.createCalendar(chatId, question, langId);
                 break;
             default:
                 sendMessage = null;

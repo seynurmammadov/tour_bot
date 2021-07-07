@@ -6,6 +6,4 @@ public enum BotState {
     START,
     LANGUAGE,
     TRIP_TYPE
-
-
 }
