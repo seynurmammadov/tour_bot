@@ -7,4 +7,8 @@ import lombok.Setter;
 @Setter
 public class UserData {
     Long langId;
+
+    public UserData() {
+        this.langId = -1L;
+    }
 }

@@ -18,7 +18,6 @@ public class Action {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
-    String text;
     @Enumerated(EnumType.STRING)
     ActionType type;
     @JsonIgnore

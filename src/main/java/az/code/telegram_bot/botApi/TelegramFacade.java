@@ -2,17 +2,11 @@ package az.code.telegram_bot.botApi;
 
 import az.code.telegram_bot.botApi.handlers.InputMessageHandler;
 import az.code.telegram_bot.cache.DataCache;
-import az.code.telegram_bot.models.UserData;
 import az.code.telegram_bot.models.enums.BotState;
-import az.code.telegram_bot.services.LanguageService;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.A;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
@@ -42,21 +36,21 @@ public class TelegramFacade {
     }
 
     private SendMessage handleInputMessage(Message message) {
-        String inputMsg = message.getText();
         long userId = message.getFrom().getId();
-        BotState botState;
-
-        switch (inputMsg) {
-            case "/start":
-                botState = BotState.LANGUAGE;
-                break;
-            default:
-                botState = dataCache.getBotState(userId);
-                break;
-        }
-
+        BotState botState = dataCache.getBotState(userId);
         dataCache.setBotState(userId, botState);
-        return inputMessageHandler.handle(message,botState);
+        return inputMessageHandler.handle(message,botState,userId);
+//        String inputMsg = message.getText();
+//
+//        switch (inputMsg) {
+//            case "/start":
+//                botState = BotState.LANGUAGE;
+//                break;
+//            default:
+//                botState = dataCache.getBotState(userId);
+//                break;
+//        }
+
     }
 
 }
