@@ -12,7 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 
 
 @Component
-public class InputMessageHandlerImpl implements InputMessageHandler {
+public class InputMessageHandlerImpl implements MessageHandler {
     final
     MessageService messageService;
     final
@@ -24,11 +24,6 @@ public class InputMessageHandlerImpl implements InputMessageHandler {
         this.messageService = messageService;
         this.questionService = questionService;
         this.dataCache = dataCache;
-    }
-
-    @Override
-    public BotState getHandlerName() {
-        return BotState.LANGUAGE;
     }
 
     @Override

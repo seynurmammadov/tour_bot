@@ -26,7 +26,7 @@ public class ButtonsUtil {
         for (ActionTranslate text : actionTranslates) {
             List<InlineKeyboardButton> rowInline = new ArrayList<>();
             InlineKeyboardButton btn = new InlineKeyboardButton();
-            btn.setCallbackData(text.getId().toString());
+            btn.setCallbackData(text.getAction().getCallback());
             btn.setText(text.getContext());
             rowInline.add(btn);
             rowsInline.add(rowInline);

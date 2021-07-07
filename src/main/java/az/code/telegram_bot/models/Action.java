@@ -20,6 +20,7 @@ public class Action {
     Long id;
     @Enumerated(EnumType.STRING)
     ActionType type;
+    String callback;
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "question_id")

@@ -95,7 +95,6 @@ public class MessageServiceImpl implements MessageService {
                     .flatMap(a -> a.getActionTranslates().stream()
                             .filter(q -> Objects.equals(q.getLanguage().getId(), langId)))
                     .collect(Collectors.toList()));
-
         } else {
             keyboard = buttonsUtil.createInlKeyboard(actions.stream()
                     .flatMap(a -> a.getActionTranslates().stream())
