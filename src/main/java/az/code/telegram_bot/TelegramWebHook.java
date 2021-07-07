@@ -38,6 +38,4 @@ public class TelegramWebHook extends TelegramWebhookBot {
         BotApiMethod<?> replyMessageToUser = telegramFacade.handleUpdate(update);
         return replyMessageToUser;
     }
-
-
 }

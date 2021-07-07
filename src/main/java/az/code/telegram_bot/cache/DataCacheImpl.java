@@ -22,7 +22,7 @@ public class DataCacheImpl implements DataCache {
     public BotState getBotState(long userId) {
         BotState botState = usersBotStates.get(userId);
         if (botState == null) {
-            botState = BotState.FILLING_DATA;
+            botState = BotState.LANGUAGE;
         }
         return botState;
     }
