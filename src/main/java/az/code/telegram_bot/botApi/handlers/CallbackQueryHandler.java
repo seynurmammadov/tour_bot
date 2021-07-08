@@ -2,15 +2,10 @@ package az.code.telegram_bot.botApi.handlers;
 
 import az.code.telegram_bot.cache.DataCacheImpl;
 import az.code.telegram_bot.models.Question;
-import az.code.telegram_bot.models.QuestionTranslate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 
 @Component
 public class CallbackQueryHandler implements QueryHandler {
@@ -24,7 +19,7 @@ public class CallbackQueryHandler implements QueryHandler {
     @Override
     public BotApiMethod<?> handle(CallbackQuery buttonQuery, String chatId, Long userId) {
         SendMessage callBackAnswer = new SendMessage();
-        Question state = dataCache.getState(userId);
+        Question state = dataCache.getCurrentQuestion(userId);
     /*    switch (state.getState()){
             case "LANGUAGE":
                 EditMessageText markup = new EditMessageText();

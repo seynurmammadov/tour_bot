@@ -4,6 +4,7 @@ import az.code.telegram_bot.models.ActionTranslate;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
@@ -22,6 +23,7 @@ public class ButtonsUtil {
         }
         return keyboard;
     }
+
     public List<List<InlineKeyboardButton>> createInlKeyboard(List<ActionTranslate> actionTranslates) {
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
 
@@ -35,12 +37,19 @@ public class ButtonsUtil {
         }
         return rowsInline;
     }
-    public SendMessage buttonMessage(ReplyKeyboard markup,String chatId,String question){
+
+    public SendMessage buttonMessage(ReplyKeyboard markup, String chatId, String question) {
         SendMessage sendMessage = new SendMessage();
         sendMessage.enableMarkdown(true);
         sendMessage.setChatId(chatId);
         sendMessage.setText(question);
         sendMessage.setReplyMarkup(markup);
         return sendMessage;
+    }
+
+    public ReplyKeyboardRemove removeReplyKeyboard() {
+        ReplyKeyboardRemove remove = new ReplyKeyboardRemove();
+        remove.setRemoveKeyboard(true);
+        return remove;
     }
 }

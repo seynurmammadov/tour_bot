@@ -3,7 +3,9 @@ package az.code.telegram_bot.cache;
 import az.code.telegram_bot.models.Question;
 import az.code.telegram_bot.models.UserData;
 import az.code.telegram_bot.repositories.LanguageRepository;
+import az.code.telegram_bot.services.Interfaces.MessageService;
 import az.code.telegram_bot.services.Interfaces.QuestionService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -17,27 +19,30 @@ public class DataCacheImpl implements DataCache {
 
     final
     QuestionService questionService;
+    final
+    MessageService messageService;
 
     private final Map<Long, Question> usersStates = new HashMap<>();
     private final Map<Long, UserData> usersData = new HashMap<>();
 
-    public DataCacheImpl(QuestionService questionService, LanguageRepository languageRepository) {
+    public DataCacheImpl(QuestionService questionService, LanguageRepository languageRepository, MessageService messageService) {
         this.questionService = questionService;
         this.languageRepository = languageRepository;
+        this.messageService = messageService;
     }
 
     @Override
-    public void setState(long userId, Question state) {
-        usersStates.put(userId, state);
+    public void setQuestion(long userId, Question question) {
+        usersStates.put(userId, question);
     }
 
     @Override
-    public Question getState(long userId) {
-        Question state = usersStates.get(userId);
-        if (state == null) {
-            state = questionService.getFirstQuestion();
+    public Question getCurrentQuestion(long userId) {
+        Question question = usersStates.get(userId);
+        if (question == null) {
+            question = questionService.getFirstQuestion();
         }
-        return state;
+        return question;
     }
 
     @Override
@@ -63,7 +68,9 @@ public class DataCacheImpl implements DataCache {
     }
 
     @Override
-    public void addAnswer(long userId, String message) {
-
+    public void addAnswer(long userId, String answer) {
+        UserData userData = getUserProfileData(userId);
+        String question = messageService.questionGenerator(getCurrentQuestion(userId), userData.getLangId());
+        userData.addAnswer(answer,question);
     }
 }

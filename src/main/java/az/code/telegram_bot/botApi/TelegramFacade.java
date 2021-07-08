@@ -44,16 +44,11 @@ public class TelegramFacade {
         }
         if (message != null && message.hasText()) {
             logUtil.logNewMessage(message);
-            replyMessage = handleInputMessage(message, bot);
+            replyMessage = inputMessageHandler.handle(message, bot);
         }
         return replyMessage;
     }
 
-    private SendMessage handleInputMessage(Message message, TelegramWebHook bot) throws TelegramApiException {
-        String chatId = message.getChatId().toString();
-        Question state = dataCache.getState(message.getFrom().getId());
-        return inputMessageHandler.handle(message, state, chatId, bot);
-    }
 
     private BotApiMethod<?> processCallbackQuery(CallbackQuery buttonQuery) {
         final String chatId = buttonQuery.getMessage().getChatId().toString();

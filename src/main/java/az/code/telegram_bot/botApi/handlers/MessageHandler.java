@@ -7,6 +7,5 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 public interface MessageHandler {
-    SendMessage handle(Message message, Question state,String chatId, TelegramWebHook bot)
-                                                                                    throws TelegramApiException;
+    SendMessage handle(Message message, TelegramWebHook bot) throws TelegramApiException;
 }

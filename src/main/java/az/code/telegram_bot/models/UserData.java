@@ -20,5 +20,8 @@ public class UserData {
         this.langId = 4L;
     }
 
+    public void addAnswer(String answer,String question){
+        answers.put(question,answer);
+    }
 
 }

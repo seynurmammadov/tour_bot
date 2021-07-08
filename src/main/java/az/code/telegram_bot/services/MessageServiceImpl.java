@@ -1,5 +1,6 @@
 package az.code.telegram_bot.services;
 
+import az.code.telegram_bot.TelegramWebHook;
 import az.code.telegram_bot.models.Action;
 import az.code.telegram_bot.models.Question;
 import az.code.telegram_bot.services.Interfaces.MessageService;
@@ -11,8 +12,10 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.List;
 import java.util.Set;
@@ -36,12 +39,14 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public String questionGenerator(Question question, Long langId) {
-        return translateUtil.getQuestionTranslate(question,langId);
+        return translateUtil.getQuestionTranslate(question, langId);
     }
 
     @Override
     public SendMessage simpleQuestionMessage(String chatId, Question question, Long langId) {
-        return new SendMessage(chatId, questionGenerator(question, langId));
+        SendMessage sendMessage = new SendMessage(chatId, questionGenerator(question, langId));
+        sendMessage.setReplyMarkup(buttonsUtil.removeReplyKeyboard());
+        return sendMessage;
     }
 
     @Override
@@ -71,11 +76,18 @@ public class MessageServiceImpl implements MessageService {
         );
     }
 
+    @Override
+    public void sendData(String chatId, Long userId, String data, TelegramWebHook bot) throws TelegramApiException {
+        SendMessage sendMessage = new SendMessage(chatId, data);
+        sendMessage.setReplyMarkup(buttonsUtil.removeReplyKeyboard());
+        bot.execute(sendMessage);
+    }
+
     private ReplyKeyboardMarkup createRepMarkup(Set<Action> actions, Long langId) {
         List<KeyboardRow> keyboard = buttonsUtil.createRepKeyboard(
                 translateUtil.getActionsTranslate(actions, langId)
         );
-        return new ReplyKeyboardMarkup(keyboard, true, true, true, "");
+        return new ReplyKeyboardMarkup(keyboard, true, false, true, "");
     }
 
     private InlineKeyboardMarkup createInlMarkup(Set<Action> actions, Long langId) {
@@ -85,14 +97,5 @@ public class MessageServiceImpl implements MessageService {
         return new InlineKeyboardMarkup(keyboard);
     }
 
-
-
-   /* public AnswerCallbackQuery sendAnswerCallbackQuery(String text, boolean alert, CallbackQuery callBackQuery) {
-        AnswerCallbackQuery answerCallbackQuery = new AnswerCallbackQuery();
-        answerCallbackQuery.setCallbackQueryId(callBackQuery.getId());
-        answerCallbackQuery.setShowAlert(alert);
-        answerCallbackQuery.setText(text);
-        return answerCallbackQuery;
-    }*/
 
 }

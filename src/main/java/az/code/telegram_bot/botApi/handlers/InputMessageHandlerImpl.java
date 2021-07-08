@@ -7,7 +7,6 @@ import az.code.telegram_bot.models.Question;
 import az.code.telegram_bot.models.enums.ActionType;
 import az.code.telegram_bot.services.Interfaces.MessageService;
 import az.code.telegram_bot.services.Interfaces.QuestionService;
-import lombok.Builder;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -15,7 +14,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.Optional;
 
-@Builder
+
 @Component
 public class InputMessageHandlerImpl implements MessageHandler {
     final
@@ -25,6 +24,9 @@ public class InputMessageHandlerImpl implements MessageHandler {
     final
     DataCache dataCache;
 
+    private Long userId;
+    private String chatId;
+    private TelegramWebHook bot;
 
     public InputMessageHandlerImpl(MessageService messageService, QuestionService questionService,
                                    DataCache dataCache) {
@@ -33,43 +35,102 @@ public class InputMessageHandlerImpl implements MessageHandler {
         this.dataCache = dataCache;
     }
 
+    /**
+     *
+     * @param message
+     * @param bot
+     * @return question with actionType, if was last question or if user answer is incorrect {@code null}
+     * @throws TelegramApiException
+     */
     @Override
-    public SendMessage handle(Message message, Question state,
-                              String chatId, TelegramWebHook bot) throws TelegramApiException {
-        long userId = message.getFrom().getId();
-        if (!checkAnswer(state, message, chatId, bot))
+    public SendMessage handle(Message message, TelegramWebHook bot) throws TelegramApiException {
+        setData(message, bot);
+        if(message.getText().length()>50){
+            //TODO multiply language error
+            return new SendMessage(chatId, "Incorrect");
+        }
+        Question currentQuestion = dataCache.getCurrentQuestion(userId);
+        if (!checkAnswerNCaching(currentQuestion, message))
             return null;
         else
-            state = dataCache.getState(userId);
-        return getMessage(state, chatId, dataCache.getUserProfileData(userId).getLangId());
+            currentQuestion = dataCache.getCurrentQuestion(userId);
+        long currentLanguage = dataCache.getUserProfileData(userId).getLangId();
+        return getMessage(currentQuestion, currentLanguage);
     }
 
-    private boolean checkAnswer(Question state, Message message,
-                                String chatId, TelegramWebHook bot) throws TelegramApiException {
+    /**
+     * <p>This method checks if the user's answer is correct and caches the answer if the answer is.</p>
+     * <p>If the answer is not correct, an appropriate message is sent.</p>
+     *
+     * @param state
+     * @param message
+     * @return {@code true}  If answer is present {@code false} if answer is present and this question
+     * was last or answer is not present
+     * @throws TelegramApiException
+     */
+    private boolean checkAnswerNCaching(Question state, Message message) throws TelegramApiException {
 
-        long userId = message.getFrom().getId();
-        Optional<Action> actionFiltered = state.getActions().stream()
+        Optional<Action> filteredAnswer = state.getActions().stream()
                 .filter(a -> a.getActionTranslates().stream()
                         .anyMatch(t -> t.getContext().equals(message.getText())))
                 .findFirst();
-        if (actionFiltered.isPresent()) {
-            dataCache.setState(userId, actionFiltered.get().getNextQuestion());
-            if (state.getState() == null) {
-                dataCache.setLanguage(userId, message.getText());
-                return true;
-            }
-            if (actionFiltered.get().getNextQuestion() == null) {
-                bot.execute(new SendMessage(chatId, dataCache.getUserProfileData(userId).toString()));
-                return false;
-            }
-        } else if (state.getState() != null) {
+        Action actionFreeText = state.getActions().iterator().next();
+        if (filteredAnswer.isPresent() ) {
+            return !cachingData(state, message, filteredAnswer.get());
+        }else if ( actionFreeText.getType()==ActionType.FREETEXT){
+            return !cachingData(state, message, actionFreeText);
+        }
+        else if (state.getState() != null) {
+            //TODO multiply language error
             bot.execute(new SendMessage(chatId, "Incorrect"));
             return false;
         }
         return true;
     }
 
-    private SendMessage getMessage(Question question, String chatId, Long langId) {
+    /**
+     * This method caches data and if question was last then send collected data to user
+     *
+     * @param state
+     * @param message
+     * @param filteredAnswer
+     * @return {@code true}  if question was last
+     * @throws TelegramApiException
+     */
+    private boolean cachingData(Question state, Message message, Action filteredAnswer) throws TelegramApiException {
+        if (state.getState() == null) {
+            dataCache.setLanguage(userId, message.getText());
+        } else {
+            dataCache.addAnswer(userId, message.getText());
+        }
+        dataCache.setQuestion(userId, filteredAnswer.getNextQuestion());
+        if (sendCollectedData(filteredAnswer)) return true;
+        return false;
+    }
+
+    /**
+     * This method send collected user data
+     *
+     * @param filteredAnswer
+     * @return {@code true}  if the data sent {@code false} if data not sent
+     * @throws TelegramApiException
+     */
+    private boolean sendCollectedData(Action filteredAnswer) throws TelegramApiException {
+        if (filteredAnswer.getNextQuestion() == null) {
+            messageService.sendData(chatId, userId, dataCache.getUserProfileData(userId).toString(), bot);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * This method creates a message dynamically using data from the database.
+     *
+     * @param question
+     * @param langId
+     * @return Message which created by actionType
+     */
+    private SendMessage getMessage(Question question, Long langId) {
         ActionType actionType = question.getActions()
                 .stream()
                 .findFirst()
@@ -88,6 +149,18 @@ public class InputMessageHandlerImpl implements MessageHandler {
             default:
                 return null;
         }
+    }
+
+    /**
+     * This method sets data that is used in other methods.
+     *
+     * @param message
+     * @param bot
+     */
+    private void setData(Message message, TelegramWebHook bot) {
+        this.userId = message.getFrom().getId();
+        this.chatId = message.getChatId().toString();
+        this.bot = bot;
     }
 
 }
