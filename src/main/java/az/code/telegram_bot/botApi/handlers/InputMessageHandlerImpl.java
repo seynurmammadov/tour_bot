@@ -2,6 +2,8 @@ package az.code.telegram_bot.botApi.handlers;
 
 import az.code.telegram_bot.TelegramWebHook;
 import az.code.telegram_bot.cache.DataCache;
+import az.code.telegram_bot.exceptions.IncorrectAnswerException;
+import az.code.telegram_bot.exceptions.MaxStringSizeException;
 import az.code.telegram_bot.models.Action;
 import az.code.telegram_bot.models.Question;
 import az.code.telegram_bot.models.enums.ActionType;
@@ -36,7 +38,6 @@ public class InputMessageHandlerImpl implements MessageHandler {
     }
 
     /**
-     *
      * @param message
      * @param bot
      * @return question with actionType, if was last question or if user answer is incorrect {@code null}
@@ -45,16 +46,18 @@ public class InputMessageHandlerImpl implements MessageHandler {
     @Override
     public SendMessage handle(Message message, TelegramWebHook bot) throws TelegramApiException {
         setData(message, bot);
-        if(message.getText().length()>50){
-            //TODO multiply language error
-            return new SendMessage(chatId, "Incorrect");
+        //TODO set length of text to property
+        if (message.getText().length() > 50) {
+            return messageService.createError(chatId,
+                    new MaxStringSizeException(50),
+                    dataCache.getUserProfileData(userId).getLangId());
         }
         Question currentQuestion = dataCache.getCurrentQuestion(userId);
         if (!checkAnswerNCaching(currentQuestion, message))
             return null;
         else
             currentQuestion = dataCache.getCurrentQuestion(userId);
-        long currentLanguage = dataCache.getUserProfileData(userId).getLangId();
+        long currentLanguage =dataCache.getUserProfileData(userId).getLangId();
         return getMessage(currentQuestion, currentLanguage);
     }
 
@@ -75,14 +78,14 @@ public class InputMessageHandlerImpl implements MessageHandler {
                         .anyMatch(t -> t.getContext().equals(message.getText())))
                 .findFirst();
         Action actionFreeText = state.getActions().iterator().next();
-        if (filteredAnswer.isPresent() ) {
+        if (filteredAnswer.isPresent()) {
             return !cachingData(state, message, filteredAnswer.get());
-        }else if ( actionFreeText.getType()==ActionType.FREETEXT){
+        } else if (actionFreeText.getType() == ActionType.FREETEXT) {
             return !cachingData(state, message, actionFreeText);
-        }
-        else if (state.getState() != null) {
-            //TODO multiply language error
-            bot.execute(new SendMessage(chatId, "Incorrect"));
+        } else if (state.getState() != null) {
+            bot.execute(messageService.createError(chatId,
+                    new IncorrectAnswerException(),
+                    dataCache.getUserProfileData(userId).getLangId()));
             return false;
         }
         return true;

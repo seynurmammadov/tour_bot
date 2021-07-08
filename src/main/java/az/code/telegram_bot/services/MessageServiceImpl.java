@@ -1,6 +1,7 @@
 package az.code.telegram_bot.services;
 
 import az.code.telegram_bot.TelegramWebHook;
+import az.code.telegram_bot.exceptions.MyCustomException;
 import az.code.telegram_bot.models.Action;
 import az.code.telegram_bot.models.Question;
 import az.code.telegram_bot.services.Interfaces.MessageService;
@@ -81,6 +82,12 @@ public class MessageServiceImpl implements MessageService {
         SendMessage sendMessage = new SendMessage(chatId, data);
         sendMessage.setReplyMarkup(buttonsUtil.removeReplyKeyboard());
         bot.execute(sendMessage);
+    }
+
+    @Override
+    public SendMessage createError(String chatId, MyCustomException exception, Long currentLanguage) {
+
+        return new SendMessage(chatId, exception.getLocalizedMessage(currentLanguage));
     }
 
     private ReplyKeyboardMarkup createRepMarkup(Set<Action> actions, Long langId) {
