@@ -1,71 +1,58 @@
 package az.code.telegram_bot.botApi;
 
+import az.code.telegram_bot.TelegramWebHook;
 import az.code.telegram_bot.botApi.handlers.MessageHandler;
 import az.code.telegram_bot.botApi.handlers.QueryHandler;
 import az.code.telegram_bot.cache.DataCache;
-import az.code.telegram_bot.models.enums.BotState;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import az.code.telegram_bot.models.Question;
+import az.code.telegram_bot.utils.LogUtil;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Component
-@Slf4j
 public class TelegramFacade {
     final
     DataCache dataCache;
-
     final
     MessageHandler inputMessageHandler;
     final
     QueryHandler callbackQueryHandler;
+    final
+    LogUtil logUtil;
 
     public TelegramFacade(DataCache dataCache,
                           MessageHandler inputMessageHandler,
-                          QueryHandler callbackQueryHandler) {
+                          QueryHandler callbackQueryHandler, LogUtil logUtil) {
         this.dataCache = dataCache;
         this.inputMessageHandler = inputMessageHandler;
         this.callbackQueryHandler = callbackQueryHandler;
+        this.logUtil = logUtil;
     }
 
-    public BotApiMethod<?> handleUpdate(Update update) {
+    public BotApiMethod<?> handleUpdate(Update update, TelegramWebHook bot) throws TelegramApiException {
         SendMessage replyMessage = null;
         Message message = update.getMessage();
         if (update.hasCallbackQuery()) {
             CallbackQuery callbackQuery = update.getCallbackQuery();
-            log.info("New callbackQuery from User: {}, userId: {}, with data: {}", update.getCallbackQuery().getFrom().getUserName(),
-                    callbackQuery.getFrom().getId(), update.getCallbackQuery().getData());
+            logUtil.logCallBackQuery(update, callbackQuery);
             return processCallbackQuery(callbackQuery);
         }
-
         if (message != null && message.hasText()) {
-            log.info("New message from User:{}, userId: {}, chatId: {},  with text: {}",
-                    message.getFrom().getUserName(), message.getFrom().getId(), message.getChatId(), message.getText());
-            replyMessage = handleInputMessage(message);
+            logUtil.logNewMessage(message);
+            replyMessage = handleInputMessage(message, bot);
         }
         return replyMessage;
     }
 
-    private SendMessage handleInputMessage(Message message) {
-        long userId = message.getFrom().getId();
-        BotState botState = dataCache.getBotState(userId);
-        dataCache.setBotState(userId, botState);
-        return inputMessageHandler.handle(message, botState, userId);
-//        String inputMsg = message.getText();
-//        switch (inputMsg) {
-//            case "/start":
-//                botState = BotState.LANGUAGE;
-//                break;
-//            default:
-//                botState = dataCache.getBotState(userId);
-//                break;
-//        }
-
+    private SendMessage handleInputMessage(Message message, TelegramWebHook bot) throws TelegramApiException {
+        String chatId = message.getChatId().toString();
+        Question state = dataCache.getState(message.getFrom().getId());
+        return inputMessageHandler.handle(message, state, chatId, bot);
     }
 
     private BotApiMethod<?> processCallbackQuery(CallbackQuery buttonQuery) {

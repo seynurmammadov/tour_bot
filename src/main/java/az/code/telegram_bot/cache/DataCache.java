@@ -1,14 +1,17 @@
 package az.code.telegram_bot.cache;
 
+import az.code.telegram_bot.models.Question;
 import az.code.telegram_bot.models.UserData;
-import az.code.telegram_bot.models.enums.BotState;
 
 public interface DataCache {
-    void setBotState(long userId, BotState botState);
+    void setState(long userId, Question state);
 
-    BotState getBotState(long userId);
+    Question getState(long userId);
 
     UserData getUserProfileData(long userId);
 
     void saveUserProfileData(long userId, UserData userData);
+
+    void setLanguage(long userId,String langName);
+    void addAnswer(long userId,String message);
 }
