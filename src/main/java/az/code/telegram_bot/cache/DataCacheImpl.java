@@ -70,7 +70,6 @@ public class DataCacheImpl implements DataCache {
     @Override
     public void addAnswer(long userId, String answer) {
         UserData userData = getUserProfileData(userId);
-        String question = messageService.questionGenerator(getCurrentQuestion(userId), userData.getLangId());
-        userData.addAnswer(answer,question);
+        userData.addAnswer(answer,getCurrentQuestion(userId).getState());
     }
 }
