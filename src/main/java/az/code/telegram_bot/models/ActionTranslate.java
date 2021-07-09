@@ -13,7 +13,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "actionTranslates")
+@Table(name = "action_translates")
 public class ActionTranslate {
 
     @Id

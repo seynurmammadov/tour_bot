@@ -18,6 +18,3 @@ telegrambot:
   webHookPath: https://5adc44dd06f7.ngrok.io
   telegramUrl: https://api.telegram.org/bot
   botPath: webhook
-  reply:
-    start: НАЧАЛОСЬЬ
-    askLanguage: Выберите язык

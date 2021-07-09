@@ -5,7 +5,6 @@ import az.code.telegram_bot.models.UserData;
 import az.code.telegram_bot.repositories.LanguageRepository;
 import az.code.telegram_bot.services.Interfaces.MessageService;
 import az.code.telegram_bot.services.Interfaces.QuestionService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -39,10 +38,16 @@ public class DataCacheImpl implements DataCache {
     @Override
     public Question getCurrentQuestion(long userId) {
         Question question = usersStates.get(userId);
-        if (question == null) {
-            question = questionService.getFirstQuestion();
-        }
         return question;
+    }
+
+    @Override
+    public boolean setFirstQuestion(long userId) {
+        if (getCurrentQuestion(userId) == null) {
+            setQuestion(userId, questionService.getFirstQuestion());
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -70,6 +75,6 @@ public class DataCacheImpl implements DataCache {
     @Override
     public void addAnswer(long userId, String answer) {
         UserData userData = getUserProfileData(userId);
-        userData.addAnswer(answer,getCurrentQuestion(userId).getState());
+        userData.addAnswer(answer, getCurrentQuestion(userId).getState());
     }
 }

@@ -1,7 +1,6 @@
 package az.code.telegram_bot.controllers;
 
 import az.code.telegram_bot.TelegramWebHook;
-import az.code.telegram_bot.services.Interfaces.QuestionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
