@@ -21,4 +21,5 @@ public interface MessageService {
     void sendData(String chatId, Long userId, String data, TelegramWebHook bot) throws TelegramApiException;
 
     SendMessage createError(String chatId, MyCustomException exception, Long currentLanguage);
+    SendMessage createNotify(String chatId, MyCustomException exception, Long currentLanguage);
 }

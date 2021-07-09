@@ -3,8 +3,8 @@ package az.code.telegram_bot.botApi.handlers;
 import az.code.telegram_bot.TelegramWebHook;
 import az.code.telegram_bot.botApi.handlers.interfaces.MessageHandler;
 import az.code.telegram_bot.cache.DataCache;
-import az.code.telegram_bot.exceptions.StopBeforeException;
-import az.code.telegram_bot.exceptions.UnknownCommandException;
+import az.code.telegram_bot.exceptions.*;
+import az.code.telegram_bot.models.Question;
 import az.code.telegram_bot.models.UserData;
 import az.code.telegram_bot.models.enums.CommandType;
 import az.code.telegram_bot.repositories.RedisRepository;
@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+
+import java.util.Queue;
 
 @Component
 public class CommandHandler implements MessageHandler {
@@ -48,8 +50,7 @@ public class CommandHandler implements MessageHandler {
             case START:
                 return startCommand(message, bot);
             case STOP:
-                dataCache.clearData(userId);
-                return new SendMessage(message.getChatId().toString(), "STOPED");
+                return stopCommand();
             default:
                 return messageService.createError(chatId,
                         new UnknownCommandException(),
@@ -57,12 +58,28 @@ public class CommandHandler implements MessageHandler {
         }
     }
 
-    private SendMessage startCommand(Message message, TelegramWebHook bot) throws TelegramApiException {
-        if(dataCache.setFirstQuestion(userId)){
-            tourService.createSeance(userId,chatId);
-            return inputMessageHandler.handle(message, bot);
+    private SendMessage stopCommand() {
+
+        Question question =dataCache.getCurrentQuestion(userId);
+        if(question!=null ){
+            dataCache.clearDataAndState(userId);
+            tourService.deactiveSeance(userId);
+            return messageService.createNotify(chatId,
+                    new StopNotifyException(),
+                    dataCache.getUserProfileData(userId).getLangId());
         }
-        else {
+        else  {
+            return messageService.createError(chatId,
+                    new StartBeforeStopException(),
+                    dataCache.getUserProfileData(userId).getLangId());
+        }
+    }
+
+    private SendMessage startCommand(Message message, TelegramWebHook bot) throws TelegramApiException {
+        if (dataCache.setFirstQuestion(userId)) {
+            tourService.createSeance(userId, chatId);
+            return inputMessageHandler.handle(message, bot);
+        } else {
             return messageService.createError(chatId,
                     new StopBeforeException(),
                     dataCache.getUserProfileData(userId).getLangId());

@@ -15,5 +15,6 @@ public interface DataCache {
 
     void setLanguage(long userId,String langName);
     void addAnswer(long userId,String answer);
+    void clearDataAndState(Long userId);
     void clearData(Long userId);
 }

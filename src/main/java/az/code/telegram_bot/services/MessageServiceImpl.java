@@ -11,10 +11,8 @@ import az.code.telegram_bot.utils.TranslateUtil;
 import org.joda.time.LocalDate;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -88,8 +86,13 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public SendMessage createError(String chatId, MyCustomException exception, Long currentLanguage) {
-
         return new SendMessage(chatId, exception.getLocalizedMessage(currentLanguage));
+    }
+    @Override
+    public SendMessage createNotify(String chatId, MyCustomException exception, Long currentLanguage) {
+        SendMessage sendMessage =new SendMessage(chatId, exception.getLocalizedMessage(currentLanguage));
+        sendMessage.setReplyMarkup(buttonsUtil.removeReplyKeyboard());
+        return sendMessage;
     }
 
     private ReplyKeyboardMarkup createRepMarkup(Set<Action> actions, Long langId) {

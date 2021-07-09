@@ -31,6 +31,11 @@ public class TourRequestServiceImpl implements TourRequestService {
     }
 
     @Override
+    public void deactiveSeance(Long userId) {
+        tourRepository.deactiveSeance(userId);
+    }
+
+    @Override
     public Optional<TourRequest> getByUUID(String UUID) {
         return tourRepository.getByUUID(UUID);
     }

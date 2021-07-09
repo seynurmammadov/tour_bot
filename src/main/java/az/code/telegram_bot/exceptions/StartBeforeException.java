@@ -9,7 +9,6 @@ public class StartBeforeException extends Exception implements MyCustomException
 
     @Override
     public String getLocalizedMessage(Long langId) {
-
         switch (langId.intValue()) {
             case 1:
                 return ru;

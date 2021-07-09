@@ -1,8 +1,6 @@
 package az.code.telegram_bot.models;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.springframework.data.redis.core.RedisHash;
 
 import java.io.Serializable;
@@ -15,6 +13,8 @@ import java.util.Map;
 @Setter
 @ToString
 @RedisHash("UserData")
+@AllArgsConstructor
+@Builder
 public class UserData implements Serializable {
     private Long langId;
     Map<String, String> answers = new HashMap<>();

@@ -85,8 +85,17 @@ public class DataCacheImpl implements DataCache {
         saveUserProfileData(userId,userData);
     }
     @Override
-    public void clearData(Long userId){
+    public void clearDataAndState(Long userId){
+        long landId = getUserProfileData(userId).getLangId();
         stateRepository.delete(userId);
         userDataRepository.delete(userId);
+        saveUserProfileData(userId,UserData.builder().langId(landId).build());
+    }
+
+    @Override
+    public void clearData(Long userId) {
+        long landId = getUserProfileData(userId).getLangId();
+        userDataRepository.delete(userId);
+        saveUserProfileData(userId,UserData.builder().langId(landId).build());
     }
 }
