@@ -11,6 +11,7 @@ import az.code.telegram_bot.utils.TranslateUtil;
 import org.joda.time.LocalDate;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
@@ -49,6 +50,7 @@ public class MessageServiceImpl implements MessageService {
         sendMessage.setReplyMarkup(buttonsUtil.removeReplyKeyboard());
         return sendMessage;
     }
+
 
     @Override
     public SendMessage createCalendar(String chatId, Question question, Long langId) {
