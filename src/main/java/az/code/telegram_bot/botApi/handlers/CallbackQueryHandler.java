@@ -1,5 +1,6 @@
 package az.code.telegram_bot.botApi.handlers;
 
+import az.code.telegram_bot.botApi.handlers.interfaces.QueryHandler;
 import az.code.telegram_bot.cache.DataCacheImpl;
 import az.code.telegram_bot.models.Question;
 import org.springframework.stereotype.Component;

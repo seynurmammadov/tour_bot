@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Getter
 @Setter
@@ -14,7 +15,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @Entity
 @Table(name = "action_translates")
-public class ActionTranslate {
+public class ActionTranslate implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

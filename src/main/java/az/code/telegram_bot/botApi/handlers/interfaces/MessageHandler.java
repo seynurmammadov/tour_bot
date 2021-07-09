@@ -1,4 +1,4 @@
-package az.code.telegram_bot.botApi.handlers;
+package az.code.telegram_bot.botApi.handlers.interfaces;
 
 import az.code.telegram_bot.TelegramWebHook;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;

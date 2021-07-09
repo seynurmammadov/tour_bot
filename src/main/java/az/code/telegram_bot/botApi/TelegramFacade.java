@@ -1,8 +1,8 @@
 package az.code.telegram_bot.botApi;
 
 import az.code.telegram_bot.TelegramWebHook;
-import az.code.telegram_bot.botApi.handlers.MessageHandler;
-import az.code.telegram_bot.botApi.handlers.QueryHandler;
+import az.code.telegram_bot.botApi.handlers.interfaces.MessageHandler;
+import az.code.telegram_bot.botApi.handlers.interfaces.QueryHandler;
 import az.code.telegram_bot.cache.DataCache;
 import az.code.telegram_bot.services.Interfaces.FileService;
 import az.code.telegram_bot.utils.LogUtil;

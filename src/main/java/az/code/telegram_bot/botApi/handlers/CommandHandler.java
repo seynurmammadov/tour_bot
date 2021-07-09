@@ -1,11 +1,13 @@
 package az.code.telegram_bot.botApi.handlers;
 
 import az.code.telegram_bot.TelegramWebHook;
+import az.code.telegram_bot.botApi.handlers.interfaces.MessageHandler;
 import az.code.telegram_bot.cache.DataCache;
 import az.code.telegram_bot.exceptions.StopBeforeException;
 import az.code.telegram_bot.exceptions.UnknownCommandException;
-import az.code.telegram_bot.models.TourRequest;
+import az.code.telegram_bot.models.UserData;
 import az.code.telegram_bot.models.enums.CommandType;
+import az.code.telegram_bot.repositories.RedisRepository;
 import az.code.telegram_bot.services.Interfaces.MessageService;
 import az.code.telegram_bot.services.Interfaces.TourRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,7 @@ public class CommandHandler implements MessageHandler {
     final
     TourRequestService tourService;
 
+
     public CommandHandler(MessageService messageService, DataCache dataCache, MessageHandler inputMessageHandler, TourRequestService tourService) {
         this.messageService = messageService;
         this.dataCache = dataCache;
@@ -45,7 +48,8 @@ public class CommandHandler implements MessageHandler {
             case START:
                 return startCommand(message, bot);
             case STOP:
-                return new SendMessage(message.getChatId().toString(), "STOP");
+                dataCache.clearData(userId);
+                return new SendMessage(message.getChatId().toString(), "STOPED");
             default:
                 return messageService.createError(chatId,
                         new UnknownCommandException(),

@@ -3,8 +3,10 @@ package az.code.telegram_bot.cache;
 import az.code.telegram_bot.models.Question;
 import az.code.telegram_bot.models.UserData;
 import az.code.telegram_bot.repositories.LanguageRepository;
+import az.code.telegram_bot.repositories.RedisRepository;
 import az.code.telegram_bot.services.Interfaces.MessageService;
 import az.code.telegram_bot.services.Interfaces.QuestionService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
@@ -20,25 +22,29 @@ public class DataCacheImpl implements DataCache {
     QuestionService questionService;
     final
     MessageService messageService;
+    final
+    RedisRepository<UserData> userDataRepository;
+    final
+    RedisRepository<Question> stateRepository;
 
-    private final Map<Long, Question> usersStates = new HashMap<>();
-    private final Map<Long, UserData> usersData = new HashMap<>();
-
-    public DataCacheImpl(QuestionService questionService, LanguageRepository languageRepository, MessageService messageService) {
+    public DataCacheImpl(QuestionService questionService, LanguageRepository languageRepository,
+                         MessageService messageService, RedisRepository<UserData> userDataRepository,
+                         RedisRepository<Question> stateRepository) {
         this.questionService = questionService;
         this.languageRepository = languageRepository;
         this.messageService = messageService;
+        this.userDataRepository = userDataRepository;
+        this.stateRepository = stateRepository;
     }
 
     @Override
     public void setQuestion(long userId, Question question) {
-        usersStates.put(userId, question);
+        stateRepository.save(userId, question);
     }
 
     @Override
     public Question getCurrentQuestion(long userId) {
-        Question question = usersStates.get(userId);
-        return question;
+        return stateRepository.findById(userId);
     }
 
     @Override
@@ -52,16 +58,16 @@ public class DataCacheImpl implements DataCache {
 
     @Override
     public UserData getUserProfileData(long userId) {
-        UserData userProfileData = usersData.get(userId);
+        UserData userProfileData = userDataRepository.findById(userId);
         if (userProfileData == null) {
-            userProfileData = new UserData();
+            return new UserData();
         }
         return userProfileData;
     }
 
     @Override
     public void saveUserProfileData(long userId, UserData userData) {
-        usersData.put(userId, userData);
+        userDataRepository.save(userId, userData);
     }
 
     @Override
@@ -76,5 +82,11 @@ public class DataCacheImpl implements DataCache {
     public void addAnswer(long userId, String answer) {
         UserData userData = getUserProfileData(userId);
         userData.addAnswer(answer, getCurrentQuestion(userId).getState());
+        saveUserProfileData(userId,userData);
+    }
+    @Override
+    public void clearData(Long userId){
+        stateRepository.delete(userId);
+        userDataRepository.delete(userId);
     }
 }

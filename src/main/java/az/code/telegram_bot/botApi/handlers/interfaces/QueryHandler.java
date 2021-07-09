@@ -1,4 +1,4 @@
-package az.code.telegram_bot.botApi.handlers;
+package az.code.telegram_bot.botApi.handlers.interfaces;
 
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
