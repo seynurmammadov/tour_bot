@@ -40,4 +40,9 @@ public class TourRequestServiceImpl implements TourRequestService {
         return tourRepository.getByUUID(UUID);
     }
 
+    @Override
+    public Optional<TourRequest> getByUserId(Long userId) {
+        return tourRepository.getByClient_id(userId);
+    }
+
 }

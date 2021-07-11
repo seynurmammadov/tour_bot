@@ -56,11 +56,11 @@ public class TelegramFacade {
         }
         else if(isCommand(message)){
             logUtil.logNewMessage(message,"command");
-            replyMessage = commandHandler.handle(message,bot);
+            replyMessage = commandHandler.handle(message,bot,true);
         }
         else if(message != null && message.hasText()) {
             logUtil.logNewMessage(message);
-            replyMessage = inputMessageHandler.handle(message, bot);
+            replyMessage = inputMessageHandler.handle(message, bot,false);
         }
         return replyMessage;
     }

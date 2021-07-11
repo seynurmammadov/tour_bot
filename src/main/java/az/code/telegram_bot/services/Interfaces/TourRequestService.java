@@ -9,4 +9,5 @@ public interface TourRequestService {
     void createSeance(Long userId, String chatId);
     void deactiveSeance(Long userId);
     Optional<TourRequest> getByUUID(String UUID);
+    Optional<TourRequest>getByUserId(Long userId);
 }

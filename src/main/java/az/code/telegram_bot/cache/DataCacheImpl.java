@@ -48,9 +48,12 @@ public class DataCacheImpl implements DataCache {
     }
 
     @Override
-    public boolean setFirstQuestion(long userId) {
-        if (getCurrentQuestion(userId) == null) {
+    public boolean setPrimaryQuestion(long userId) {
+        if (getCurrentQuestion(userId) == null && getUserProfileData(userId).getLangId()==4l) {
             setQuestion(userId, questionService.getFirstQuestion());
+            return true;
+        }else if (getCurrentQuestion(userId) == null){
+            setQuestion(userId, questionService.getSecondQuestion());
             return true;
         }
         return false;
@@ -61,6 +64,8 @@ public class DataCacheImpl implements DataCache {
         UserData userProfileData = userDataRepository.findById(userId);
         if (userProfileData == null) {
             return new UserData();
+        }else if(userProfileData.getAnswers()==null){
+            userProfileData.setAnswers(new HashMap<>());
         }
         return userProfileData;
     }

@@ -7,7 +7,7 @@ public interface DataCache {
     void setQuestion(long userId, Question question);
 
     Question getCurrentQuestion(long userId);
-    boolean setFirstQuestion(long userId);
+    boolean setPrimaryQuestion(long userId);
 
     UserData getUserProfileData(long userId);
 
