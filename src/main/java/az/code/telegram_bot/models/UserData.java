@@ -17,6 +17,7 @@ import java.util.Map;
 @Builder
 public class UserData implements Serializable {
     private Long langId;
+    String UUID;
     Map<String, String> answers = new HashMap<>();
 
     public UserData() {

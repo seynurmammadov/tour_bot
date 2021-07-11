@@ -7,33 +7,38 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Setter
 @Getter
 @Configuration
-@ConfigurationProperties(prefix = "rabbit")
+//@ConfigurationProperties(prefix = "rabbit")
 public class RabbitMQConfig {
-    public final static String stop = "stop";
-    public final static String receiver = "receiver";
-    public final static String sender = "sender";
-    public static String exchange;
+    public final static String cancelled = "cancelled";
+    public final static String offered = "offered";
+    public final static String sended = "sended";
+    public final static String accepted = "accepted";
+    public final static String exchange = "exchange";
 
     @Bean
-    public Queue queueStop() {
-        return new Queue(stop);
+    public Queue queueCancelled() {
+        return new Queue(cancelled);
     }
 
     @Bean
-    public Queue queueReceiver() {
-        return new Queue(receiver);
+    public Queue queueOffered() {
+        return new Queue(offered);
     }
 
     @Bean
-    public Queue queueSender() {
-        return new Queue(sender);
+    public Queue queueSended() {
+        return new Queue(sended);
+    }
+
+    @Bean
+    public Queue queueAccepted() {
+        return new Queue(accepted);
     }
 
     @Bean
@@ -42,18 +47,23 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Binding bindingReceiver(TopicExchange exchange) {
-        return BindingBuilder.bind(queueReceiver()).to(exchange).with(queueReceiver().getName());
+    public Binding bindingOffered(TopicExchange exchange) {
+        return BindingBuilder.bind(queueOffered()).to(exchange).with(queueOffered().getName());
     }
 
     @Bean
-    public Binding bindingStop(TopicExchange exchange) {
-        return BindingBuilder.bind(queueStop()).to(exchange).with(queueStop().getName());
+    public Binding bindingCancelled(TopicExchange exchange) {
+        return BindingBuilder.bind(queueCancelled()).to(exchange).with(queueCancelled().getName());
     }
 
     @Bean
-    public Binding bindingSender(TopicExchange exchange) {
-        return BindingBuilder.bind(queueSender()).to(exchange).with(queueSender().getName());
+    public Binding bindingSended(TopicExchange exchange) {
+        return BindingBuilder.bind(queueSended()).to(exchange).with(queueSended().getName());
+    }
+
+    @Bean
+    public Binding bindingAccepted(TopicExchange exchange) {
+        return BindingBuilder.bind(queueAccepted()).to(exchange).with(queueAccepted().getName());
     }
 
     @Bean

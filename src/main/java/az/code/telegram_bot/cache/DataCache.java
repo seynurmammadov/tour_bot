@@ -7,14 +7,20 @@ public interface DataCache {
     void setQuestion(long userId, Question question);
 
     Question getCurrentQuestion(long userId);
+
     boolean setPrimaryQuestion(long userId);
+
+    void setUUID(long userId, String UUID);
 
     UserData getUserProfileData(long userId);
 
     void saveUserProfileData(long userId, UserData userData);
 
-    void setLanguage(long userId,String langName);
-    void addAnswer(long userId,String answer);
+    void setLanguage(long userId, String langName);
+
+    void addAnswer(long userId, String answer);
+
     void clearDataAndState(Long userId);
+
     void clearData(Long userId);
 }

@@ -3,7 +3,7 @@ package az.code.telegram_bot.services.Interfaces;
 import az.code.telegram_bot.models.Question;
 
 public interface QuestionService {
-    Question getQuestionByKeyword(Question question);
+    Question getQuestionByKeyword(String keyword);
     Question getFirstQuestion();
     Question getSecondQuestion();
 }

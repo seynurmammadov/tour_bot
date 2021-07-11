@@ -3,6 +3,7 @@ package az.code.telegram_bot.utils;
 import az.code.telegram_bot.models.ActionTranslate;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboard;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -10,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -26,30 +28,21 @@ public class ButtonsUtil {
 
     public List<List<InlineKeyboardButton>> createInlKeyboard(List<ActionTranslate> actionTranslates) {
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
-
         for (ActionTranslate text : actionTranslates) {
             List<InlineKeyboardButton> rowInline = new ArrayList<>();
-            InlineKeyboardButton btn = new InlineKeyboardButton();
-            btn.setCallbackData(text.getAction().getCallback());
-            btn.setText(text.getContext());
-            rowInline.add(btn);
+            rowInline.add(InlineKeyboardButton.builder()
+                    .callbackData(text.getAction().getCallback())
+                    .text(text.getContext()).build());
             rowsInline.add(rowInline);
         }
         return rowsInline;
     }
 
     public SendMessage buttonMessage(ReplyKeyboard markup, String chatId, String question) {
-        SendMessage sendMessage = new SendMessage();
-        sendMessage.enableMarkdown(true);
-        sendMessage.setChatId(chatId);
-        sendMessage.setText(question);
-        sendMessage.setReplyMarkup(markup);
-        return sendMessage;
+        return SendMessage.builder().replyMarkup(markup).chatId(chatId).text(question).build();
     }
 
     public ReplyKeyboardRemove removeReplyKeyboard() {
-        ReplyKeyboardRemove remove = new ReplyKeyboardRemove();
-        remove.setRemoveKeyboard(true);
-        return remove;
+        return ReplyKeyboardRemove.builder().removeKeyboard(true).build();
     }
 }

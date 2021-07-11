@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.UUID;
 
 @Component
 public class TourRequestServiceImpl implements TourRequestService {
@@ -20,18 +19,24 @@ public class TourRequestServiceImpl implements TourRequestService {
     }
 
     @Override
-    public void createSeance(Long userId, String chatId) {
+    public void createSeance(Long userId, String chatId, String randUUID) {
         tourRepository.save(TourRequest.builder()
                 .status(true)
+                .countOffers(1)
                 .createdAt(LocalDateTime.now())
                 .client_id(userId)
                 .chatId(chatId)
-                .UUID(UUID.randomUUID().toString())
+                .UUID(randUUID)
                 .build());
     }
 
     @Override
-    public void deactiveSeance(Long userId) {
+    public void saveSeance(TourRequest tourRequest) {
+        tourRepository.save(tourRequest);
+    }
+
+    @Override
+    public void deactivateSeance(Long userId) {
         tourRepository.deactiveSeance(userId);
     }
 

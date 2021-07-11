@@ -2,16 +2,10 @@ package az.code.telegram_bot;
 
 import az.code.telegram_bot.botApi.TelegramFacade;
 import az.code.telegram_bot.configs.RabbitMQConfig;
-import az.code.telegram_bot.models.ReceiverDTO;
+import az.code.telegram_bot.models.AgentOffer;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.SneakyThrows;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -49,8 +43,8 @@ public class TelegramWebHook extends TelegramWebhookBot {
     }
 
 
-    @RabbitListener(queues = RabbitMQConfig.receiver)
-    public void sendPhoto(ReceiverDTO receiverDTO) throws IOException, TelegramApiException {
-         telegramFacade.sendPhoto(receiverDTO,this);
+    @RabbitListener(queues = RabbitMQConfig.offered)
+    public void sendPhoto(AgentOffer agentOffer) throws IOException, TelegramApiException {
+         telegramFacade.sendPhoto(agentOffer,this);
     }
 }

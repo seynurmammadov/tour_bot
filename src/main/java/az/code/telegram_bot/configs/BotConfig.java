@@ -2,12 +2,10 @@ package az.code.telegram_bot.configs;
 
 import az.code.telegram_bot.TelegramWebHook;
 import az.code.telegram_bot.botApi.TelegramFacade;
-import az.code.telegram_bot.botApi.commands.IBotCommand;
 import az.code.telegram_bot.botApi.commands.StartCommand;
 import az.code.telegram_bot.botApi.commands.StopCommand;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +15,6 @@ import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 @Setter

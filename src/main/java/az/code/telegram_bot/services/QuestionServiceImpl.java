@@ -19,8 +19,8 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
-    public Question getQuestionByKeyword(Question question) {
-        return questionRepository.getQuestionByKeyword(question.getState());
+    public Question getQuestionByKeyword(String keyword) {
+        return questionRepository.getQuestionByKeyword(keyword);
     }
 
     @Override

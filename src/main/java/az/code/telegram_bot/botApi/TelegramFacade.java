@@ -4,8 +4,8 @@ import az.code.telegram_bot.TelegramWebHook;
 import az.code.telegram_bot.botApi.handlers.interfaces.MessageHandler;
 import az.code.telegram_bot.botApi.handlers.interfaces.QueryHandler;
 import az.code.telegram_bot.cache.DataCache;
-import az.code.telegram_bot.models.ReceiverDTO;
-import az.code.telegram_bot.services.Interfaces.ListeningService;
+import az.code.telegram_bot.models.AgentOffer;
+import az.code.telegram_bot.services.Interfaces.ListenerService;
 import az.code.telegram_bot.utils.LogUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -31,18 +31,18 @@ public class TelegramFacade {
     final
     MessageHandler commandHandler;
     final
-    ListeningService listeningService;
+    ListenerService listenerService;
 
     public TelegramFacade(DataCache dataCache,
                           @Qualifier("inputMessageHandler") MessageHandler inputMessageHandler,
                           QueryHandler callbackQueryHandler, LogUtil logUtil,
-                          @Qualifier("commandHandler") MessageHandler commandHandler, ListeningService listeningService) {
+                          @Qualifier("commandHandler") MessageHandler commandHandler, ListenerService listenerService) {
         this.dataCache = dataCache;
         this.inputMessageHandler = inputMessageHandler;
         this.callbackQueryHandler = callbackQueryHandler;
         this.logUtil = logUtil;
         this.commandHandler = commandHandler;
-        this.listeningService = listeningService;
+        this.listenerService = listenerService;
     }
 
     public BotApiMethod<?> handleUpdate(Update update, TelegramWebHook bot) throws TelegramApiException {
@@ -63,8 +63,8 @@ public class TelegramFacade {
         }
         return replyMessage;
     }
-    public void sendPhoto(ReceiverDTO receiverDTO, TelegramWebHook bot) throws IOException, TelegramApiException {
-         listeningService.sendPhoto(receiverDTO,bot);
+    public void sendPhoto(AgentOffer agentOffer, TelegramWebHook bot) throws IOException, TelegramApiException {
+         listenerService.sendPhoto(agentOffer,bot);
     }
 
     private BotApiMethod<?> processCallbackQuery(CallbackQuery buttonQuery) {

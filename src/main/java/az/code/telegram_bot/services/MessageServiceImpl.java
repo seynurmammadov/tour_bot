@@ -4,6 +4,7 @@ import az.code.telegram_bot.TelegramWebHook;
 import az.code.telegram_bot.exceptions.MyCustomException;
 import az.code.telegram_bot.models.Action;
 import az.code.telegram_bot.models.Question;
+import az.code.telegram_bot.models.TourRequest;
 import az.code.telegram_bot.services.Interfaces.MessageService;
 import az.code.telegram_bot.utils.ButtonsUtil;
 import az.code.telegram_bot.utils.CalendarUtil;
@@ -11,6 +12,8 @@ import az.code.telegram_bot.utils.TranslateUtil;
 import org.joda.time.LocalDate;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
@@ -43,10 +46,35 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
+    public Message sendNextButton(TelegramWebHook bot, TourRequest tourRequest, Question nextQuestion, Long langId)
+            throws TelegramApiException {
+        String text = String.format(questionGenerator(nextQuestion, langId), tourRequest.getCountOffers() - 5);
+        return bot.execute(buttonsUtil.buttonMessage(
+                createInlMarkup(nextQuestion.getActions(), langId),
+                tourRequest.getChatId(),
+                text
+        ));
+    }
+
+    @Override
+    public void updateNextButton(TelegramWebHook bot, TourRequest tourRequest, Question nextQuestion, Long langId)
+            throws TelegramApiException {
+        String text = String.format(questionGenerator(nextQuestion, langId), tourRequest.getCountOffers() - 5);
+        bot.execute(EditMessageText.builder()
+                .chatId(tourRequest.getChatId())
+                .messageId(Integer.valueOf(tourRequest.getNextMessageId()))
+                .text(text)
+                .replyMarkup(createInlMarkup(nextQuestion.getActions(), langId))
+                .build());
+    }
+
+    @Override
     public SendMessage simpleQuestionMessage(String chatId, Question question, Long langId) {
-        SendMessage sendMessage = new SendMessage(chatId, questionGenerator(question, langId));
-        sendMessage.setReplyMarkup(buttonsUtil.removeReplyKeyboard());
-        return sendMessage;
+        return SendMessage.builder()
+                .chatId(chatId)
+                .text(questionGenerator(question, langId))
+                .replyMarkup(buttonsUtil.removeReplyKeyboard())
+                .build();
     }
 
 
@@ -79,27 +107,40 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public void sendData(String chatId, Long userId, String data, TelegramWebHook bot) throws TelegramApiException {
-        SendMessage sendMessage = new SendMessage(chatId, data);
-        sendMessage.setReplyMarkup(buttonsUtil.removeReplyKeyboard());
-        bot.execute(sendMessage);
+        bot.execute(SendMessage.builder()
+                .chatId(chatId)
+                .text(data)
+                .replyMarkup(buttonsUtil.removeReplyKeyboard())
+                .build());
     }
 
     @Override
     public SendMessage createError(String chatId, MyCustomException exception, Long currentLanguage) {
-        return new SendMessage(chatId, exception.getLocalizedMessage(currentLanguage));
+        return SendMessage.builder()
+                .chatId(chatId)
+                .text(exception.getLocalizedMessage(currentLanguage))
+                .build();
     }
+
     @Override
     public SendMessage createNotify(String chatId, MyCustomException exception, Long currentLanguage) {
-        SendMessage sendMessage =new SendMessage(chatId, exception.getLocalizedMessage(currentLanguage));
-        sendMessage.setReplyMarkup(buttonsUtil.removeReplyKeyboard());
-        return sendMessage;
+        return SendMessage.builder()
+                .chatId(chatId)
+                .text(exception.getLocalizedMessage(currentLanguage))
+                .replyMarkup(buttonsUtil.removeReplyKeyboard())
+                .build();
     }
 
     private ReplyKeyboardMarkup createRepMarkup(Set<Action> actions, Long langId) {
         List<KeyboardRow> keyboard = buttonsUtil.createRepKeyboard(
                 translateUtil.getActionsTranslate(actions, langId)
         );
-        return new ReplyKeyboardMarkup(keyboard, true, false, true, "");
+        return ReplyKeyboardMarkup.builder()
+                .keyboard(keyboard)
+                .resizeKeyboard(true)
+                .selective(true)
+                .oneTimeKeyboard(false)
+                .build();
     }
 
     private InlineKeyboardMarkup createInlMarkup(Set<Action> actions, Long langId) {
