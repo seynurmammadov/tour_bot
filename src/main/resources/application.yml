@@ -22,3 +22,6 @@ telegrambot:
 redis:
   host: localhost
   port: 6379
+
+rabbit:
+    exchange: telegramExchange

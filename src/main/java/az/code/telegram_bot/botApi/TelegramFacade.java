@@ -4,12 +4,11 @@ import az.code.telegram_bot.TelegramWebHook;
 import az.code.telegram_bot.botApi.handlers.interfaces.MessageHandler;
 import az.code.telegram_bot.botApi.handlers.interfaces.QueryHandler;
 import az.code.telegram_bot.cache.DataCache;
-import az.code.telegram_bot.services.Interfaces.FileService;
+import az.code.telegram_bot.models.ReceiverDTO;
+import az.code.telegram_bot.services.Interfaces.ListeningService;
 import az.code.telegram_bot.utils.LogUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
@@ -32,18 +31,18 @@ public class TelegramFacade {
     final
     MessageHandler commandHandler;
     final
-    FileService fileService;
+    ListeningService listeningService;
 
     public TelegramFacade(DataCache dataCache,
                           @Qualifier("inputMessageHandler") MessageHandler inputMessageHandler,
                           QueryHandler callbackQueryHandler, LogUtil logUtil,
-                          @Qualifier("commandHandler") MessageHandler commandHandler, FileService fileService) {
+                          @Qualifier("commandHandler") MessageHandler commandHandler, ListeningService listeningService) {
         this.dataCache = dataCache;
         this.inputMessageHandler = inputMessageHandler;
         this.callbackQueryHandler = callbackQueryHandler;
         this.logUtil = logUtil;
         this.commandHandler = commandHandler;
-        this.fileService = fileService;
+        this.listeningService = listeningService;
     }
 
     public BotApiMethod<?> handleUpdate(Update update, TelegramWebHook bot) throws TelegramApiException {
@@ -64,8 +63,8 @@ public class TelegramFacade {
         }
         return replyMessage;
     }
-    public HttpStatus sendPhoto(MultipartFile file, String UUID, TelegramWebHook bot) throws IOException, TelegramApiException {
-        return fileService.sendPhoto(file,UUID,bot);
+    public void sendPhoto(ReceiverDTO receiverDTO, TelegramWebHook bot) throws IOException, TelegramApiException {
+         listeningService.sendPhoto(receiverDTO,bot);
     }
 
     private BotApiMethod<?> processCallbackQuery(CallbackQuery buttonQuery) {
