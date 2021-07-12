@@ -22,10 +22,12 @@ public class TourRequestServiceImpl implements TourRequestService {
     public void createSeance(Long userId, String chatId, String randUUID) {
         tourRepository.save(TourRequest.builder()
                 .status(true)
-                .countOffers(1)
+                .countOfOffers(0)
+                .countOfSended(0)
                 .createdAt(LocalDateTime.now())
                 .client_id(userId)
                 .chatId(chatId)
+                .lock(false)
                 .UUID(randUUID)
                 .build());
     }

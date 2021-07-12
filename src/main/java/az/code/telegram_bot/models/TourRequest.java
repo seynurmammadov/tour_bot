@@ -19,7 +19,9 @@ public class TourRequest {
     String UUID;
     String chatId;
     Long client_id;
-    int countOffers;
+    int countOfOffers;
+    int countOfSended;
+    boolean lock;
     String nextMessageId;
     boolean status;
     LocalDateTime createdAt;

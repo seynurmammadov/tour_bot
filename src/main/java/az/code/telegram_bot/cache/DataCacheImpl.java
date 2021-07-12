@@ -4,7 +4,7 @@ import az.code.telegram_bot.models.Question;
 import az.code.telegram_bot.models.UserData;
 import az.code.telegram_bot.repositories.LanguageRepository;
 import az.code.telegram_bot.repositories.RedisRepository;
-import az.code.telegram_bot.services.Interfaces.AgentOfferSerivce;
+import az.code.telegram_bot.services.Interfaces.AgentOfferService;
 import az.code.telegram_bot.services.Interfaces.MessageService;
 import az.code.telegram_bot.services.Interfaces.QuestionService;
 import org.springframework.stereotype.Component;
@@ -26,11 +26,11 @@ public class DataCacheImpl implements DataCache {
     final
     RedisRepository<Question> stateRepository;
     final
-    AgentOfferSerivce receiverService;
+    AgentOfferService receiverService;
 
     public DataCacheImpl(QuestionService questionService, LanguageRepository languageRepository,
                          MessageService messageService, RedisRepository<UserData> userDataRepository,
-                         RedisRepository<Question> stateRepository, AgentOfferSerivce receiverService) {
+                         RedisRepository<Question> stateRepository, AgentOfferService receiverService) {
         this.questionService = questionService;
         this.languageRepository = languageRepository;
         this.messageService = messageService;

@@ -17,5 +17,4 @@ public interface TourRequestRepository extends JpaRepository<TourRequest, Long> 
     void deactiveSeance(Long userId);
     @Query("select t from TourRequest t where t.client_id=:clientID and t.status=true")
     Optional<TourRequest> getByClient_id(Long clientID);
-
 }

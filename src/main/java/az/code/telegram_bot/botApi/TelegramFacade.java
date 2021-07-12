@@ -45,13 +45,13 @@ public class TelegramFacade {
         this.listenerService = listenerService;
     }
 
-    public BotApiMethod<?> handleUpdate(Update update, TelegramWebHook bot) throws TelegramApiException {
+    public BotApiMethod<?> handleUpdate(Update update, TelegramWebHook bot) throws TelegramApiException, IOException {
         SendMessage replyMessage = null;
         Message message = update.getMessage();
         if (update.hasCallbackQuery()) {
             CallbackQuery callbackQuery = update.getCallbackQuery();
             logUtil.logCallBackQuery(update, callbackQuery);
-            return processCallbackQuery(callbackQuery);
+            return callbackQueryHandler.handle(callbackQuery,bot);
         }
         else if(isCommand(message)){
             logUtil.logNewMessage(message,"command");
@@ -65,12 +65,6 @@ public class TelegramFacade {
     }
     public void sendPhoto(AgentOffer agentOffer, TelegramWebHook bot) throws IOException, TelegramApiException {
          listenerService.sendPhoto(agentOffer,bot);
-    }
-
-    private BotApiMethod<?> processCallbackQuery(CallbackQuery buttonQuery) {
-        final String chatId = buttonQuery.getMessage().getChatId().toString();
-        final long userId = buttonQuery.getFrom().getId();
-        return callbackQueryHandler.handle(buttonQuery, chatId, userId);
     }
     private boolean isCommand(Message message){
         return message.getText().startsWith("/");

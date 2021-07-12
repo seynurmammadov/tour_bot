@@ -15,4 +15,5 @@ public interface AgentOfferRepository extends JpaRepository<AgentOffer, Long> {
     void deleteByUUID(String UUID);
     @Query("SELECT o from AgentOffer o where o.UUID=:UUID")
     List<AgentOffer> getAgentOffersByUUID(String UUID);
+
 }
