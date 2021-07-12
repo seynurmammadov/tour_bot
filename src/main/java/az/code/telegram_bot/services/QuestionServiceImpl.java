@@ -4,6 +4,7 @@ import az.code.telegram_bot.models.Action;
 import az.code.telegram_bot.models.Question;
 import az.code.telegram_bot.repositories.QuestionRepository;
 import az.code.telegram_bot.services.Interfaces.QuestionService;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -19,16 +20,19 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
+    @Cacheable("questionByKeyword")
     public Question getQuestionByKeyword(String keyword) {
         return questionRepository.getQuestionByKeyword(keyword);
     }
 
     @Override
+    @Cacheable("firstQuestion")
     public Question getFirstQuestion() {
         return questionRepository.getFirstQuestion();
     }
 
     @Override
+    @Cacheable("secondQuestion")
     public Question getSecondQuestion() {
         Optional<Action> action = getFirstQuestion().getActions().stream().findFirst();
         return action.map(Action::getNextQuestion).orElse(null);

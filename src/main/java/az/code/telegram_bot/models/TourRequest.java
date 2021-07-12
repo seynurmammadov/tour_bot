@@ -20,7 +20,7 @@ public class TourRequest {
     String chatId;
     Long client_id;
     int countOfOffers;
-    int countOfSended;
+    int countOfSent;
     boolean lock;
     String nextMessageId;
     boolean status;

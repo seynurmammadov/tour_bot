@@ -48,7 +48,7 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public Message sendNextButton(TelegramWebHook bot, TourRequest tourRequest, Question nextQuestion, Long langId)
             throws TelegramApiException {
-        String text = String.format(questionGenerator(nextQuestion, langId), tourRequest.getCountOfOffers() - tourRequest.getCountOfSended());
+        String text = String.format(questionGenerator(nextQuestion, langId), tourRequest.getCountOfOffers() - tourRequest.getCountOfSent());
         return bot.execute(buttonsUtil.buttonMessage(
                 createInlMarkup(nextQuestion.getActions(), langId),
                 tourRequest.getChatId(),
@@ -59,7 +59,7 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public void updateNextButton(TelegramWebHook bot, TourRequest tourRequest, Question nextQuestion, Long langId)
             throws TelegramApiException {
-        String text = String.format(questionGenerator(nextQuestion, langId), tourRequest.getCountOfOffers() - tourRequest.getCountOfSended());
+        String text = String.format(questionGenerator(nextQuestion, langId), tourRequest.getCountOfOffers() - tourRequest.getCountOfSent());
         bot.execute(EditMessageText.builder()
                 .chatId(tourRequest.getChatId())
                 .messageId(Integer.valueOf(tourRequest.getNextMessageId()))

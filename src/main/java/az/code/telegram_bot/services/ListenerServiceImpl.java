@@ -103,7 +103,7 @@ public class ListenerServiceImpl implements ListenerService {
             if (offersCount % 5 == 0) {
                 tourRequest.setLock(true);
             }
-            tourRequest.setCountOfSended(tourRequest.getCountOfSended() + 1);
+            tourRequest.setCountOfSent(tourRequest.getCountOfSent() + 1);
         } else {
             sendNextButton(bot, tourRequest);
             savePhoto(offer);

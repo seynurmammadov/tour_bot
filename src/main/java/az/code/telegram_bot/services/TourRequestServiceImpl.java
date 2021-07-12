@@ -23,7 +23,7 @@ public class TourRequestServiceImpl implements TourRequestService {
         tourRepository.save(TourRequest.builder()
                 .status(true)
                 .countOfOffers(0)
-                .countOfSended(0)
+                .countOfSent(0)
                 .createdAt(LocalDateTime.now())
                 .client_id(userId)
                 .chatId(chatId)
