@@ -4,7 +4,7 @@ public enum CommandType {
     START("/start"),
     STOP("/stop"),
     ERROR("error");
-    private String command;
+    private final String command;
     CommandType(String command) {
         this.command=command;
     }

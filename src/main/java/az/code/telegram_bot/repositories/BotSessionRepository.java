@@ -14,7 +14,7 @@ public interface BotSessionRepository extends JpaRepository<BotSession, Long> {
     @Modifying
     @Transactional
     @Query("update BotSession t set t.status=false where t.client_id=:userId")
-    void deactiveSeance(Long userId);
+    void deactivateSeance(Long userId);
     @Query("select t from BotSession t where t.client_id=:clientID and t.status=true")
     Optional<BotSession> getByClient_id(Long clientID);
 }

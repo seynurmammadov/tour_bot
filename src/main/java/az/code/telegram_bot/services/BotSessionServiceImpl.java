@@ -39,7 +39,7 @@ public class BotSessionServiceImpl implements BotSessionService {
 
     @Override
     public void deactivateSeance(Long userId) {
-        sessionRepository.deactiveSeance(userId);
+        sessionRepository.deactivateSeance(userId);
     }
 
     @Override

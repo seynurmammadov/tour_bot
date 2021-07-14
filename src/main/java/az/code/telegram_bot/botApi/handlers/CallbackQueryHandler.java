@@ -3,6 +3,7 @@ package az.code.telegram_bot.botApi.handlers;
 import az.code.telegram_bot.TelegramWebHook;
 import az.code.telegram_bot.botApi.handlers.interfaces.QueryHandler;
 import az.code.telegram_bot.cache.DataCacheImpl;
+import az.code.telegram_bot.models.enums.StaticStates;
 import az.code.telegram_bot.services.Interfaces.ListenerService;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -40,8 +41,7 @@ public class CallbackQueryHandler implements QueryHandler {
             default:
         }*/
         setData(buttonQuery, bot);
-        //TODO remove hard code
-        if (Objects.equals(buttonQuery.getData(), "NEXT")) {
+        if (Objects.equals(buttonQuery.getData(), StaticStates.NEXT.toString())) {
             listenerService.sendNextPhotos(userId,this.bot);
             return DeleteMessage.builder()
                     .messageId(buttonQuery.getMessage().getMessageId())

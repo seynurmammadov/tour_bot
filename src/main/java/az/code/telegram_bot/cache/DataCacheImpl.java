@@ -26,17 +26,17 @@ public class DataCacheImpl implements DataCache {
     final
     RedisRepository<Question> stateRepository;
     final
-    AgencyOfferService receiverService;
+    AgencyOfferService offerService;
 
     public DataCacheImpl(QuestionService questionService, LanguageRepository languageRepository,
                          MessageService messageService, RedisRepository<UserData> userDataRepository,
-                         RedisRepository<Question> stateRepository, AgencyOfferService receiverService) {
+                         RedisRepository<Question> stateRepository, AgencyOfferService offerService) {
         this.questionService = questionService;
         this.languageRepository = languageRepository;
         this.messageService = messageService;
         this.userDataRepository = userDataRepository;
         this.stateRepository = stateRepository;
-        this.receiverService = receiverService;
+        this.offerService = offerService;
     }
 
     @Override
@@ -50,12 +50,10 @@ public class DataCacheImpl implements DataCache {
     }
 
     @Override
-    public boolean setFirstQuestion(long userId) {
+    public void setFirstQuestion(long userId) {
         if (getCurrentQuestion(userId) == null) {
             setQuestion(userId, questionService.getFirstQuestion());
-            return true;
         }
-        return false;
     }
 
     @Override
@@ -99,7 +97,7 @@ public class DataCacheImpl implements DataCache {
     @Override
     public void clearDataAndState(Long userId) {
         UserData userData = getUserProfileData(userId);
-        receiverService.clearData(userData.getUUID());
+        offerService.clearData(userData.getUUID());
         stateRepository.delete(userId);
         userDataRepository.delete(userId);
 

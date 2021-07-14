@@ -8,5 +8,4 @@ public class StopCommand extends BotCommand implements IBotCommand {
     public StopCommand() {
         super("stop", "With this command you can stop the Bot");
     }
-
 }

@@ -1,7 +1,6 @@
 package az.code.telegram_bot.services;
 
 import az.code.telegram_bot.TelegramWebHook;
-import az.code.telegram_bot.cache.DataCache;
 import az.code.telegram_bot.exceptions.MyCustomException;
 import az.code.telegram_bot.models.Action;
 import az.code.telegram_bot.models.Question;
@@ -50,7 +49,8 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public Message sendNextButton(TelegramWebHook bot, BotSession botSession, Question nextQuestion, Long langId)
             throws TelegramApiException {
-        String text = String.format(questionGenerator(nextQuestion, langId), botSession.getCountOfOffers() - botSession.getCountOfSent());
+        String text = String.format(questionGenerator(nextQuestion, langId),
+                botSession.getCountOfOffers() - botSession.getCountOfSent());
         return bot.execute(buttonsUtil.buttonMessage(
                 createInlMarkup(nextQuestion.getActions(), langId),
                 botSession.getChatId(),
@@ -61,10 +61,11 @@ public class MessageServiceImpl implements MessageService {
     @Override
     public void updateNextButton(TelegramWebHook bot, BotSession botSession, Question nextQuestion, Long langId)
             throws TelegramApiException {
-        String text = String.format(questionGenerator(nextQuestion, langId), botSession.getCountOfOffers() - botSession.getCountOfSent());
+        String text = String.format(questionGenerator(nextQuestion, langId),
+                botSession.getCountOfOffers() - botSession.getCountOfSent());
         bot.execute(EditMessageText.builder()
                 .chatId(botSession.getChatId())
-                .messageId(Integer.valueOf(botSession.getNextMessageId()))
+                .messageId(botSession.getNextMessageId())
                 .text(text)
                 .replyMarkup(createInlMarkup(nextQuestion.getActions(), langId))
                 .build());

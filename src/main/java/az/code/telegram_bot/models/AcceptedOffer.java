@@ -2,15 +2,14 @@ package az.code.telegram_bot.models;
 
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.Table;
+import java.io.Serializable;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AcceptedOffer {
+public class AcceptedOffer  implements Serializable {
     String UUID;
     String agencyName;
     String phoneNumber;

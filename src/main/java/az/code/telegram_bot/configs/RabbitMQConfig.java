@@ -10,14 +10,10 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.HashMap;
-import java.util.Map;
-
 
 @Setter
 @Getter
 @Configuration
-//@ConfigurationProperties(prefix = "rabbit")
 public class RabbitMQConfig {
     public final static String cancelled = "cancelled";
     public final static String offered = "offered";

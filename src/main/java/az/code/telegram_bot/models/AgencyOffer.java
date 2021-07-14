@@ -1,7 +1,6 @@
 package az.code.telegram_bot.models;
 
 import lombok.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
 

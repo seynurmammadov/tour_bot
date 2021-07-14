@@ -37,24 +37,22 @@ public class AgencyOfferImpl implements AgencyOfferService {
     }
 
     private void deleteLocal(String UUID) {
-        List<AgencyOffer> agencyOffers =getAllByUUID(UUID);
-        agencyOffers.forEach(o->{
-            try
-            {
+        List<AgencyOffer> agencyOffers = getAllByUUID(UUID);
+        agencyOffers.forEach(o -> {
+            try {
                 Files.deleteIfExists(Paths.get(o.getFilePath()));
-            }
-            catch(IOException e)
-            {
-                System.out.println("Something go wrong!.");
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         });
     }
-    public List<AgencyOffer> getAllByUUID(String UUID){
+
+    public List<AgencyOffer> getAllByUUID(String UUID) {
         return offerRepository.getAgentOffersByUUID(UUID);
     }
 
     @Override
-    public Optional<AgencyOffer> getByMessageIdAndUUID(Integer messageId,String UUID) {
-        return offerRepository.getByMessageIdAndUUID(messageId,UUID);
+    public Optional<AgencyOffer> getByMessageIdAndUUID(Integer messageId, String UUID) {
+        return offerRepository.getByMessageIdAndUUID(messageId, UUID);
     }
 }

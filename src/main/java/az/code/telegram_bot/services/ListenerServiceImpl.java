@@ -5,8 +5,10 @@ import az.code.telegram_bot.cache.DataCache;
 import az.code.telegram_bot.models.AgencyOffer;
 import az.code.telegram_bot.models.Question;
 import az.code.telegram_bot.models.BotSession;
+import az.code.telegram_bot.models.enums.StaticStates;
 import az.code.telegram_bot.services.Interfaces.*;
 import az.code.telegram_bot.utils.ButtonsUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
@@ -39,7 +41,12 @@ public class ListenerServiceImpl implements ListenerService {
 
     final
     DataCache dataCache;
-
+    @Value("${offer.sentCount}")
+    String  maxSentOfferCount;
+    @Value("${offer.image.path}")
+    String path;
+    @Value("${offer.image.extension}")
+    String extension;
 
     public ListenerServiceImpl(MessageService messageService, BotSessionService sessionService,
                                AgencyOfferImpl offerService, ButtonsUtil buttonsUtil,
@@ -72,38 +79,40 @@ public class ListenerServiceImpl implements ListenerService {
         }
     }
 
-    //TODO remove hard code
     private void sendPhotoFromDb(TelegramWebHook bot, BotSession botSession,
                                  List<AgencyOffer> agencyOffers) throws IOException, TelegramApiException {
-
         for (int i = 0; i < agencyOffers.size(); i++) {
-            if (i >= 5) {
+            if (i >= Integer.parseInt(maxSentOfferCount)) {
                 botSession.setNextMessageId(null);
                 sendNextButton(bot, botSession);
                 return;
             }
-            AgencyOffer offer = agencyOffers.get(i);
-            InputFile inputFile = getInputFile(Files.readAllBytes(Paths.get(offer.getFilePath())));
-            sendActions(offer, bot, botSession, inputFile);
-            Files.deleteIfExists(Paths.get(offer.getFilePath()));
-            offer.setFilePath(null);
-            offerService.save(offer);
+            sendNextPhoto(bot, botSession, agencyOffers, i);
         }
         botSession.setNextMessageId(null);
         sessionService.saveSeance(botSession);
     }
 
+    private void sendNextPhoto(TelegramWebHook bot, BotSession botSession, List<AgencyOffer> agencyOffers, int i)
+            throws IOException, TelegramApiException {
+        AgencyOffer offer = agencyOffers.get(i);
+        InputFile inputFile = getInputFile(Files.readAllBytes(Paths.get(offer.getFilePath())));
+        sendActions(offer, bot, botSession, inputFile);
+        Files.deleteIfExists(Paths.get(offer.getFilePath()));
+        offer.setFilePath(null);
+        offerService.save(offer);
+    }
+
     private void sendActions(AgencyOffer offer, TelegramWebHook bot,
                              BotSession botSession, InputFile inputFile) throws TelegramApiException, IOException {
         int offersCount = botSession.getCountOfOffers();
-        //TODO remove hard code
         if (!botSession.isLock()) {
             Message message = bot.execute(SendPhoto.builder()
                     .chatId(botSession.getChatId())
                     .photo(inputFile).build());
             offer.setMessageId(message.getMessageId());
             offerService.save(offer);
-            if (offersCount % 5 == 0) {
+            if (offersCount % Integer.parseInt(maxSentOfferCount) == 0) {
                 botSession.setLock(true);
             }
             botSession.setCountOfSent(botSession.getCountOfSent() + 1);
@@ -115,9 +124,8 @@ public class ListenerServiceImpl implements ListenerService {
         sessionService.saveSeance(botSession);
     }
 
-    //TODO remove hard code
     private void sendNextButton(TelegramWebHook bot, BotSession botSession) throws TelegramApiException {
-        Question nextQuestion = questionService.getQuestionByKeyword("next");
+        Question nextQuestion = questionService.getQuestionByKeyword(StaticStates.NEXT.toString());
         long langId = dataCache.getUserProfileData(botSession.getClient_id()).getLangId();
         if (botSession.getNextMessageId() == null) {
             Message message = messageService.sendNextButton(bot, botSession, nextQuestion, langId);
@@ -130,8 +138,7 @@ public class ListenerServiceImpl implements ListenerService {
 
 
     private void savePhoto(AgencyOffer offer) throws IOException {
-        //TODO remove hard code
-        String path = "images/" + UUID.randomUUID() + ".jpg";
+        String path = this.path + UUID.randomUUID() + this.extension;
         try (FileOutputStream fos = new FileOutputStream(path)) {
             fos.write(offer.getFile());
         }

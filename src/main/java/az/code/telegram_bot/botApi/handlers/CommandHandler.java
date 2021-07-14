@@ -5,7 +5,6 @@ import az.code.telegram_bot.botApi.handlers.interfaces.MessageHandler;
 import az.code.telegram_bot.cache.DataCache;
 import az.code.telegram_bot.configs.RabbitMQConfig;
 import az.code.telegram_bot.exceptions.*;
-import az.code.telegram_bot.models.UserData;
 import az.code.telegram_bot.models.enums.CommandType;
 import az.code.telegram_bot.services.Interfaces.MessageService;
 import az.code.telegram_bot.services.Interfaces.BotSessionService;
@@ -35,7 +34,8 @@ public class CommandHandler implements MessageHandler {
     private TelegramWebHook bot;
 
     public CommandHandler(MessageService messageService, DataCache dataCache,
-                          MessageHandler inputMessageHandler, BotSessionService sessionService, RabbitTemplate template) {
+                          MessageHandler inputMessageHandler, BotSessionService sessionService,
+                          RabbitTemplate template) {
         this.messageService = messageService;
         this.dataCache = dataCache;
         this.inputMessageHandler = inputMessageHandler;
@@ -57,20 +57,26 @@ public class CommandHandler implements MessageHandler {
             case STOP:
                 return stopCommand();
             default:
-                return messageService.createError(chatId, new UnknownCommandException(), dataCache.getUserProfileData(userId).getLangId());
+                return messageService.createError(chatId,
+                        new UnknownCommandException(),
+                        dataCache.getUserProfileData(userId).getLangId());
         }
     }
 
-    private SendMessage stopCommand() {
+    public SendMessage stopCommand() {
         if (sessionService.getByUserId(userId).isPresent()) {
             template.convertAndSend(RabbitMQConfig.exchange,
                     RabbitMQConfig.cancelled,
                     dataCache.getUserProfileData(userId).getUUID());
             dataCache.clearDataAndState(userId);
             sessionService.deactivateSeance(userId);
-            return messageService.createNotify(chatId, new StopNotifyException(),dataCache.getUserProfileData(userId).getLangId());
+            return messageService.createNotify(chatId,
+                    new StopNotifyException(),
+                    dataCache.getUserProfileData(userId).getLangId());
         } else {
-            return messageService.createError(chatId, new StartBeforeStopException(), dataCache.getUserProfileData(userId).getLangId());
+            return messageService.createError(chatId,
+                    new StartBeforeStopException(),
+                    dataCache.getUserProfileData(userId).getLangId());
         }
     }
 
@@ -82,7 +88,9 @@ public class CommandHandler implements MessageHandler {
             sessionService.createSeance(userId, chatId, randUUID);
             return inputMessageHandler.handle(message, this.bot, true);
         } else {
-            return messageService.createError(chatId, new StopBeforeException(), dataCache.getUserProfileData(userId).getLangId());
+            return messageService.createError(chatId,
+                    new StopBeforeException(),
+                    dataCache.getUserProfileData(userId).getLangId());
         }
     }
 

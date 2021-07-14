@@ -8,7 +8,7 @@ public interface DataCache {
 
     Question getCurrentQuestion(long userId);
 
-    boolean setFirstQuestion(long userId);
+    void setFirstQuestion(long userId);
 
     void setUUID(long userId, String UUID);
 
