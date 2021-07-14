@@ -1,9 +1,6 @@
+
 server:
   port: 5000
-
-java:
-  runtime:
-    version: 11
 
 spring:
   datasource:
@@ -19,7 +16,7 @@ spring:
 telegrambot:
   userName: "@tour_app_bot"
   botToken: 1851213801:AAERzLNwhjZVDYtkIX6FdJmZxKX4EodDvLk
-  webHookPath: https://tour-telegram-bot.herokuapp.com/
+  webHookPath: https://2062ad6c1149.ngrok.io
   telegramUrl: https://api.telegram.org/bot
   botPath: webhook
 
