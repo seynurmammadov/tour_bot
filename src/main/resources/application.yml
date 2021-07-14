@@ -22,7 +22,6 @@ telegrambot:
 redis:
   host: localhost
   port: 6379
-
 offer:
   sentCount: "5"
   image:
