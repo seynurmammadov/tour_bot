@@ -1,0 +1,30 @@
+server:
+  port: 5000
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: sa
+    driver-class-name: org.h2.Driver
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create-drop
+
+telegrambot:
+  userName: "@tour_app_bot"
+  botToken: 1851213801:AAERzLNwhjZVDYtkIX6FdJmZxKX4EodDvLk
+  webHookPath: https://2062ad6c1149.ngrok.io
+  telegramUrl: https://api.telegram.org/bot
+  botPath: webhook
+
+redis:
+  host: localhost
+  port: 6379
+
+offer:
+  sentCount: "5"
+  image:
+    path: "images/"
+    extension: ".jpg"

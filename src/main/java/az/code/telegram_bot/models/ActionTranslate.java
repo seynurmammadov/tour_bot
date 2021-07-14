@@ -13,6 +13,8 @@ import java.io.Serializable;
 @Entity
 @Table(name = "action_translates")
 @Builder
+@ToString
+@EqualsAndHashCode
 public class ActionTranslate implements Serializable {
 
     @Id

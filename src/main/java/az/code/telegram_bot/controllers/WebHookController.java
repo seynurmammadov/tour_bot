@@ -35,9 +35,11 @@ public class WebHookController {
                 AgencyOffer.builder()
                         .UUID(UUID)
                         .file(file.getBytes())
-                         .build());
+                        .agencyName("name")
+                        .build());
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
     @RequestMapping(value = "callback/webhook", method = RequestMethod.POST)
     public BotApiMethod<?> onUpdateReceived(@RequestBody Update update) {
         return telegramBot.onWebhookUpdateReceived(update);

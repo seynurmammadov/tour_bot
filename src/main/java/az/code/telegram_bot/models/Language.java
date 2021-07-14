@@ -12,6 +12,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
+@ToString
+@EqualsAndHashCode
 @Table(name = "languages")
 public class Language implements Serializable {
     @Id

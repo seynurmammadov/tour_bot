@@ -12,6 +12,9 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Entity
 @Table(name = "question_translates")
+@EqualsAndHashCode
+@ToString
+@Builder
 public class QuestionTranslate  implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
