@@ -4,6 +4,5 @@ public enum ActionType {
     BUTTON,
     FREETEXT,
     INLINE_BUTTON,
-    CALENDAR,
-    END
+    CALENDAR
 }

@@ -10,6 +10,10 @@ import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.HashMap;
+import java.util.Map;
+
+
 @Setter
 @Getter
 @Configuration
@@ -17,33 +21,33 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitMQConfig {
     public final static String cancelled = "cancelled";
     public final static String offered = "offered";
-    public final static String sended = "sended";
+    public final static String sent = "sent";
     public final static String accepted = "accepted";
     public final static String exchange = "exchange";
 
     @Bean
     public Queue queueCancelled() {
-        return new Queue(cancelled);
+        return new Queue(cancelled,true);
     }
 
     @Bean
     public Queue queueOffered() {
-        return new Queue(offered);
+        return new Queue(offered,true);
     }
 
     @Bean
-    public Queue queueSended() {
-        return new Queue(sended);
+    public Queue queueSent() {
+        return new Queue(sent,true);
     }
 
     @Bean
     public Queue queueAccepted() {
-        return new Queue(accepted);
+        return new Queue(accepted,true);
     }
 
     @Bean
-    public TopicExchange exchange() {
-        return new TopicExchange(exchange);
+   public TopicExchange exchange() {
+     return new TopicExchange(exchange);
     }
 
     @Bean
@@ -57,15 +61,14 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Binding bindingSended(TopicExchange exchange) {
-        return BindingBuilder.bind(queueSended()).to(exchange).with(queueSended().getName());
+    public Binding bindingSent(TopicExchange exchange) {
+        return BindingBuilder.bind(queueSent()).to(exchange).with(queueSent().getName());
     }
 
     @Bean
     public Binding bindingAccepted(TopicExchange exchange) {
         return BindingBuilder.bind(queueAccepted()).to(exchange).with(queueAccepted().getName());
     }
-
     @Bean
     public MessageConverter converter() {
         return new Jackson2JsonMessageConverter();

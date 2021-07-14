@@ -4,7 +4,7 @@ import az.code.telegram_bot.models.Question;
 import az.code.telegram_bot.models.UserData;
 import az.code.telegram_bot.repositories.LanguageRepository;
 import az.code.telegram_bot.repositories.RedisRepository;
-import az.code.telegram_bot.services.Interfaces.AgentOfferService;
+import az.code.telegram_bot.services.Interfaces.AgencyOfferService;
 import az.code.telegram_bot.services.Interfaces.MessageService;
 import az.code.telegram_bot.services.Interfaces.QuestionService;
 import org.springframework.stereotype.Component;
@@ -26,11 +26,11 @@ public class DataCacheImpl implements DataCache {
     final
     RedisRepository<Question> stateRepository;
     final
-    AgentOfferService receiverService;
+    AgencyOfferService receiverService;
 
     public DataCacheImpl(QuestionService questionService, LanguageRepository languageRepository,
                          MessageService messageService, RedisRepository<UserData> userDataRepository,
-                         RedisRepository<Question> stateRepository, AgentOfferService receiverService) {
+                         RedisRepository<Question> stateRepository, AgencyOfferService receiverService) {
         this.questionService = questionService;
         this.languageRepository = languageRepository;
         this.messageService = messageService;
@@ -50,12 +50,9 @@ public class DataCacheImpl implements DataCache {
     }
 
     @Override
-    public boolean setPrimaryQuestion(long userId) {
-        if (getCurrentQuestion(userId) == null && getUserProfileData(userId).getLangId() == 4l) {
+    public boolean setFirstQuestion(long userId) {
+        if (getCurrentQuestion(userId) == null) {
             setQuestion(userId, questionService.getFirstQuestion());
-            return true;
-        } else if (getCurrentQuestion(userId) == null) {
-            setQuestion(userId, questionService.getSecondQuestion());
             return true;
         }
         return false;
@@ -105,7 +102,7 @@ public class DataCacheImpl implements DataCache {
         receiverService.clearData(userData.getUUID());
         stateRepository.delete(userId);
         userDataRepository.delete(userId);
-        saveUserProfileData(userId, UserData.builder().langId(userData.getLangId()).build());
+
     }
 
     @Override

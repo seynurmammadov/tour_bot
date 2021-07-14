@@ -2,7 +2,7 @@ package az.code.telegram_bot.controllers;
 
 import az.code.telegram_bot.TelegramWebHook;
 import az.code.telegram_bot.configs.RabbitMQConfig;
-import az.code.telegram_bot.models.AgentOffer;
+import az.code.telegram_bot.models.AgencyOffer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
@@ -28,16 +28,16 @@ public class WebHookController {
 
     @RequestMapping(value = "send/message/{UUID}", method = RequestMethod.POST)
     public ResponseEntity<Void> receivedFromAgent(@RequestParam("file") MultipartFile file,
-                                            @PathVariable("UUID") String UUID) throws IOException {
-        template.convertAndSend(RabbitMQConfig.exchange,
-                                RabbitMQConfig.offered,
-                                AgentOffer.builder()
-                                        .UUID(UUID)
-                                        .file(file.getBytes())
-                                        .build());
+                                                  @PathVariable("UUID") String UUID) throws IOException {
+        template.convertAndSend(
+                RabbitMQConfig.exchange,
+                RabbitMQConfig.offered,
+                AgencyOffer.builder()
+                        .UUID(UUID)
+                        .file(file.getBytes())
+                         .build());
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
     @RequestMapping(value = "callback/webhook", method = RequestMethod.POST)
     public BotApiMethod<?> onUpdateReceived(@RequestBody Update update) {
         return telegramBot.onWebhookUpdateReceived(update);

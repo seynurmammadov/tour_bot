@@ -2,9 +2,9 @@ package az.code.telegram_bot.services;
 
 import az.code.telegram_bot.TelegramWebHook;
 import az.code.telegram_bot.cache.DataCache;
-import az.code.telegram_bot.models.AgentOffer;
+import az.code.telegram_bot.models.AgencyOffer;
 import az.code.telegram_bot.models.Question;
-import az.code.telegram_bot.models.TourRequest;
+import az.code.telegram_bot.models.BotSession;
 import az.code.telegram_bot.services.Interfaces.*;
 import az.code.telegram_bot.utils.ButtonsUtil;
 import org.springframework.stereotype.Component;
@@ -26,10 +26,10 @@ public class ListenerServiceImpl implements ListenerService {
     MessageService messageService;
 
     final
-    TourRequestService tourService;
+    BotSessionService sessionService;
 
     final
-    AgentOfferService offerService;
+    AgencyOfferService offerService;
 
     final
     ButtonsUtil buttonsUtil;
@@ -41,11 +41,11 @@ public class ListenerServiceImpl implements ListenerService {
     DataCache dataCache;
 
 
-    public ListenerServiceImpl(MessageService messageService, TourRequestService tourService,
-                               AgentOfferImpl offerService, ButtonsUtil buttonsUtil,
+    public ListenerServiceImpl(MessageService messageService, BotSessionService sessionService,
+                               AgencyOfferImpl offerService, ButtonsUtil buttonsUtil,
                                QuestionService questionService, DataCache dataCache) {
         this.messageService = messageService;
-        this.tourService = tourService;
+        this.sessionService = sessionService;
         this.offerService = offerService;
         this.buttonsUtil = buttonsUtil;
         this.questionService = questionService;
@@ -53,8 +53,8 @@ public class ListenerServiceImpl implements ListenerService {
     }
 
     @Override
-    public void sendPhoto(AgentOffer offer, TelegramWebHook bot) throws IOException, TelegramApiException {
-        Optional<TourRequest> tourRequest = tourService.getByUUID(offer.getUUID());
+    public void sendPhoto(AgencyOffer offer, TelegramWebHook bot) throws IOException, TelegramApiException {
+        Optional<BotSession> tourRequest = sessionService.getByUUID(offer.getUUID());
         if (tourRequest.isPresent()) {
             InputFile inputFile = getInputFile(offer.getFile());
             tourRequest.get().setCountOfOffers(tourRequest.get().getCountOfOffers() + 1);
@@ -64,75 +64,79 @@ public class ListenerServiceImpl implements ListenerService {
 
     @Override
     public void sendNextPhotos(Long userId, TelegramWebHook bot) throws TelegramApiException, IOException {
-        Optional<TourRequest> tourRequest = tourService.getByUserId(userId);
+        Optional<BotSession> tourRequest = sessionService.getByUserId(userId);
         if (tourRequest.isPresent()) {
-            List<AgentOffer> agentOffers = offerService.getAllByUUID(tourRequest.get().getUUID());
+            List<AgencyOffer> agencyOffers = offerService.getAllByUUID(tourRequest.get().getUUID());
             tourRequest.get().setLock(false);
-            sendPhotoFromDb(bot, tourRequest.get(), agentOffers);
+            sendPhotoFromDb(bot, tourRequest.get(), agencyOffers);
         }
     }
 
     //TODO remove hard code
-    private void sendPhotoFromDb(TelegramWebHook bot, TourRequest tourRequest,
-                                 List<AgentOffer> agentOffers) throws IOException, TelegramApiException {
+    private void sendPhotoFromDb(TelegramWebHook bot, BotSession botSession,
+                                 List<AgencyOffer> agencyOffers) throws IOException, TelegramApiException {
 
-        for (int i = 0; i < agentOffers.size(); i++) {
+        for (int i = 0; i < agencyOffers.size(); i++) {
             if (i >= 5) {
-                tourRequest.setNextMessageId(null);
-                sendNextButton(bot,tourRequest);
+                botSession.setNextMessageId(null);
+                sendNextButton(bot, botSession);
                 return;
             }
-            AgentOffer offer = agentOffers.get(i);
+            AgencyOffer offer = agencyOffers.get(i);
             InputFile inputFile = getInputFile(Files.readAllBytes(Paths.get(offer.getFilePath())));
-            sendActions(offer, bot, tourRequest, inputFile);
+            sendActions(offer, bot, botSession, inputFile);
             Files.deleteIfExists(Paths.get(offer.getFilePath()));
-            offerService.deleteOffer(offer);
+            offer.setFilePath(null);
+            offerService.save(offer);
         }
-        tourRequest.setNextMessageId(null);
-        tourService.saveSeance(tourRequest);
+        botSession.setNextMessageId(null);
+        sessionService.saveSeance(botSession);
     }
 
-    private void sendActions(AgentOffer offer, TelegramWebHook bot,
-                             TourRequest tourRequest, InputFile inputFile) throws TelegramApiException, IOException {
-        int offersCount = tourRequest.getCountOfOffers();
+    private void sendActions(AgencyOffer offer, TelegramWebHook bot,
+                             BotSession botSession, InputFile inputFile) throws TelegramApiException, IOException {
+        int offersCount = botSession.getCountOfOffers();
         //TODO remove hard code
-        if (!tourRequest.isLock()) {
-            bot.execute(SendPhoto.builder()
-                    .chatId(tourRequest.getChatId())
+        if (!botSession.isLock()) {
+            Message message = bot.execute(SendPhoto.builder()
+                    .chatId(botSession.getChatId())
                     .photo(inputFile).build());
+            offer.setMessageId(message.getMessageId());
+            offerService.save(offer);
             if (offersCount % 5 == 0) {
-                tourRequest.setLock(true);
+                botSession.setLock(true);
             }
-            tourRequest.setCountOfSent(tourRequest.getCountOfSent() + 1);
+            botSession.setCountOfSent(botSession.getCountOfSent() + 1);
+
         } else {
-            sendNextButton(bot, tourRequest);
+            sendNextButton(bot, botSession);
             savePhoto(offer);
         }
-        tourService.saveSeance(tourRequest);
+        sessionService.saveSeance(botSession);
     }
 
     //TODO remove hard code
-    private void sendNextButton(TelegramWebHook bot, TourRequest tourRequest) throws TelegramApiException {
+    private void sendNextButton(TelegramWebHook bot, BotSession botSession) throws TelegramApiException {
         Question nextQuestion = questionService.getQuestionByKeyword("next");
-        long langId = dataCache.getUserProfileData(tourRequest.getClient_id()).getLangId();
-        if (tourRequest.getNextMessageId() == null) {
-            Message message = messageService.sendNextButton(bot, tourRequest, nextQuestion, langId);
-            tourRequest.setNextMessageId(message.getMessageId().toString());
-            tourService.saveSeance(tourRequest);
+        long langId = dataCache.getUserProfileData(botSession.getClient_id()).getLangId();
+        if (botSession.getNextMessageId() == null) {
+            Message message = messageService.sendNextButton(bot, botSession, nextQuestion, langId);
+            botSession.setNextMessageId(message.getMessageId());
+            sessionService.saveSeance(botSession);
         } else {
-            messageService.updateNextButton(bot, tourRequest, nextQuestion, langId);
+            messageService.updateNextButton(bot, botSession, nextQuestion, langId);
         }
     }
 
 
-    private void savePhoto(AgentOffer offer) throws IOException {
+    private void savePhoto(AgencyOffer offer) throws IOException {
         //TODO remove hard code
         String path = "images/" + UUID.randomUUID() + ".jpg";
         try (FileOutputStream fos = new FileOutputStream(path)) {
             fos.write(offer.getFile());
         }
         offer.setFilePath(path);
-        offerService.create(offer);
+        offerService.save(offer);
     }
 
     private InputFile getInputFile(byte[] array) {

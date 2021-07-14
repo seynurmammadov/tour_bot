@@ -1,10 +1,11 @@
 package az.code.telegram_bot.services;
 
 import az.code.telegram_bot.TelegramWebHook;
+import az.code.telegram_bot.cache.DataCache;
 import az.code.telegram_bot.exceptions.MyCustomException;
 import az.code.telegram_bot.models.Action;
 import az.code.telegram_bot.models.Question;
-import az.code.telegram_bot.models.TourRequest;
+import az.code.telegram_bot.models.BotSession;
 import az.code.telegram_bot.services.Interfaces.MessageService;
 import az.code.telegram_bot.utils.ButtonsUtil;
 import az.code.telegram_bot.utils.CalendarUtil;
@@ -34,6 +35,7 @@ public class MessageServiceImpl implements MessageService {
     final
     TranslateUtil translateUtil;
 
+
     public MessageServiceImpl(ButtonsUtil buttonsUtil, CalendarUtil calendarUtil, TranslateUtil translateUtil) {
         this.buttonsUtil = buttonsUtil;
         this.calendarUtil = calendarUtil;
@@ -46,23 +48,23 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public Message sendNextButton(TelegramWebHook bot, TourRequest tourRequest, Question nextQuestion, Long langId)
+    public Message sendNextButton(TelegramWebHook bot, BotSession botSession, Question nextQuestion, Long langId)
             throws TelegramApiException {
-        String text = String.format(questionGenerator(nextQuestion, langId), tourRequest.getCountOfOffers() - tourRequest.getCountOfSent());
+        String text = String.format(questionGenerator(nextQuestion, langId), botSession.getCountOfOffers() - botSession.getCountOfSent());
         return bot.execute(buttonsUtil.buttonMessage(
                 createInlMarkup(nextQuestion.getActions(), langId),
-                tourRequest.getChatId(),
+                botSession.getChatId(),
                 text
         ));
     }
 
     @Override
-    public void updateNextButton(TelegramWebHook bot, TourRequest tourRequest, Question nextQuestion, Long langId)
+    public void updateNextButton(TelegramWebHook bot, BotSession botSession, Question nextQuestion, Long langId)
             throws TelegramApiException {
-        String text = String.format(questionGenerator(nextQuestion, langId), tourRequest.getCountOfOffers() - tourRequest.getCountOfSent());
+        String text = String.format(questionGenerator(nextQuestion, langId), botSession.getCountOfOffers() - botSession.getCountOfSent());
         bot.execute(EditMessageText.builder()
-                .chatId(tourRequest.getChatId())
-                .messageId(Integer.valueOf(tourRequest.getNextMessageId()))
+                .chatId(botSession.getChatId())
+                .messageId(Integer.valueOf(botSession.getNextMessageId()))
                 .text(text)
                 .replyMarkup(createInlMarkup(nextQuestion.getActions(), langId))
                 .build());
@@ -115,18 +117,18 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public SendMessage createError(String chatId, MyCustomException exception, Long currentLanguage) {
+    public SendMessage createError(String chatId, MyCustomException exception, Long langId) {
         return SendMessage.builder()
                 .chatId(chatId)
-                .text(exception.getLocalizedMessage(currentLanguage))
+                .text(exception.getLocalizedMessage(langId))
                 .build();
     }
 
     @Override
-    public SendMessage createNotify(String chatId, MyCustomException exception, Long currentLanguage) {
+    public SendMessage createNotify(String chatId, MyCustomException exception, Long langId) {
         return SendMessage.builder()
                 .chatId(chatId)
-                .text(exception.getLocalizedMessage(currentLanguage))
+                .text(exception.getLocalizedMessage(langId))
                 .replyMarkup(buttonsUtil.removeReplyKeyboard())
                 .build();
     }

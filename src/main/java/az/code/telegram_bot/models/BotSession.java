@@ -10,9 +10,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "tour_request")
+@Table(name = "bot_session")
 @Builder
-public class TourRequest {
+public class BotSession {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
@@ -22,7 +22,7 @@ public class TourRequest {
     int countOfOffers;
     int countOfSent;
     boolean lock;
-    String nextMessageId;
+    Integer nextMessageId;
     boolean status;
     LocalDateTime createdAt;
 }

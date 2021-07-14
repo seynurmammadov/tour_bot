@@ -8,7 +8,7 @@ import az.code.telegram_bot.exceptions.*;
 import az.code.telegram_bot.models.UserData;
 import az.code.telegram_bot.models.enums.CommandType;
 import az.code.telegram_bot.services.Interfaces.MessageService;
-import az.code.telegram_bot.services.Interfaces.TourRequestService;
+import az.code.telegram_bot.services.Interfaces.BotSessionService;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -26,7 +26,7 @@ public class CommandHandler implements MessageHandler {
     final
     MessageHandler inputMessageHandler;
     final
-    TourRequestService tourService;
+    BotSessionService sessionService;
     final
     RabbitTemplate template;
 
@@ -35,11 +35,11 @@ public class CommandHandler implements MessageHandler {
     private TelegramWebHook bot;
 
     public CommandHandler(MessageService messageService, DataCache dataCache,
-                          MessageHandler inputMessageHandler, TourRequestService tourService, RabbitTemplate template) {
+                          MessageHandler inputMessageHandler, BotSessionService sessionService, RabbitTemplate template) {
         this.messageService = messageService;
         this.dataCache = dataCache;
         this.inputMessageHandler = inputMessageHandler;
-        this.tourService = tourService;
+        this.sessionService = sessionService;
         this.template = template;
     }
 
@@ -57,41 +57,32 @@ public class CommandHandler implements MessageHandler {
             case STOP:
                 return stopCommand();
             default:
-                return messageService.createError(chatId,
-                        new UnknownCommandException(),
-                        dataCache.getUserProfileData(userId).getLangId());
+                return messageService.createError(chatId, new UnknownCommandException(), dataCache.getUserProfileData(userId).getLangId());
         }
     }
 
     private SendMessage stopCommand() {
-        if (tourService.getByUserId(userId).isPresent()) {
-            UserData userData = dataCache.getUserProfileData(userId);
+        if (sessionService.getByUserId(userId).isPresent()) {
             template.convertAndSend(RabbitMQConfig.exchange,
                     RabbitMQConfig.cancelled,
                     dataCache.getUserProfileData(userId).getUUID());
             dataCache.clearDataAndState(userId);
-            tourService.deactivateSeance(userId);
-            return messageService.createNotify(chatId,
-                    new StopNotifyException(),
-                    dataCache.getUserProfileData(userId).getLangId());
+            sessionService.deactivateSeance(userId);
+            return messageService.createNotify(chatId, new StopNotifyException(),dataCache.getUserProfileData(userId).getLangId());
         } else {
-            return messageService.createError(chatId,
-                    new StartBeforeStopException(),
-                    dataCache.getUserProfileData(userId).getLangId());
+            return messageService.createError(chatId, new StartBeforeStopException(), dataCache.getUserProfileData(userId).getLangId());
         }
     }
 
     private SendMessage startCommand(Message message) throws TelegramApiException {
-        if (tourService.getByUserId(userId).isEmpty()) {
-            dataCache.setPrimaryQuestion(userId);
+        if (sessionService.getByUserId(userId).isEmpty()) {
+            dataCache.setFirstQuestion(userId);
             String randUUID = UUID.randomUUID().toString();
             dataCache.setUUID(userId, randUUID);
-            tourService.createSeance(userId, chatId, randUUID);
+            sessionService.createSeance(userId, chatId, randUUID);
             return inputMessageHandler.handle(message, this.bot, true);
         } else {
-            return messageService.createError(chatId,
-                    new StopBeforeException(),
-                    dataCache.getUserProfileData(userId).getLangId());
+            return messageService.createError(chatId, new StopBeforeException(), dataCache.getUserProfileData(userId).getLangId());
         }
     }
 

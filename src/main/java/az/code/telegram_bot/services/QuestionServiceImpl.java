@@ -31,11 +31,5 @@ public class QuestionServiceImpl implements QuestionService {
         return questionRepository.getFirstQuestion();
     }
 
-    @Override
-    @Cacheable("secondQuestion")
-    public Question getSecondQuestion() {
-        Optional<Action> action = getFirstQuestion().getActions().stream().findFirst();
-        return action.map(Action::getNextQuestion).orElse(null);
-    }
 }
 

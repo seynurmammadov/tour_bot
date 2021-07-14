@@ -5,5 +5,4 @@ import az.code.telegram_bot.models.Question;
 public interface QuestionService {
     Question getQuestionByKeyword(String keyword);
     Question getFirstQuestion();
-    Question getSecondQuestion();
 }

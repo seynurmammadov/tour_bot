@@ -10,12 +10,14 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Builder
 @Entity
-@Table(name = "agent_offer")
-public class AgentOffer {
+@Table(name = "agency_offer")
+public class AgencyOffer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
+    String agencyName;
     String UUID;
+    Integer messageId;
     @Transient
     byte[] file;
     String filePath;

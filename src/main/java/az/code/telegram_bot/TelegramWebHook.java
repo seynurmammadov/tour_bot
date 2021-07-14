@@ -2,9 +2,10 @@ package az.code.telegram_bot;
 
 import az.code.telegram_bot.botApi.TelegramFacade;
 import az.code.telegram_bot.configs.RabbitMQConfig;
-import az.code.telegram_bot.models.AgentOffer;
+import az.code.telegram_bot.models.AgencyOffer;
 import lombok.Builder;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -13,6 +14,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.IOException;
 
+@Slf4j
 @Builder
 public class TelegramWebHook extends TelegramWebhookBot {
     private final String webHookPath;
@@ -42,9 +44,8 @@ public class TelegramWebHook extends TelegramWebhookBot {
         return telegramFacade.handleUpdate(update, this);
     }
 
-
     @RabbitListener(queues = RabbitMQConfig.offered)
-    public void sendPhoto(AgentOffer agentOffer) throws IOException, TelegramApiException {
-         telegramFacade.sendPhoto(agentOffer,this);
+    public void sendPhoto(AgencyOffer agencyOffer) throws IOException, TelegramApiException {
+        telegramFacade.sendPhoto(agencyOffer, this);
     }
 }
