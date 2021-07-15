@@ -3,7 +3,12 @@ package az.code.telegram_bot.configs;
 import org.springframework.boot.autoconfigure.data.redis.LettuceClientConfigurationBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 import redis.clients.jedis.Jedis;
 
 import javax.net.ssl.HostnameVerifier;
@@ -26,6 +31,7 @@ public class HerokuConfig {
             }
         };
     }
+
     private static Jedis getConnection() {
         try {
             TrustManager bogusTrustManager = new X509TrustManager() {
@@ -53,5 +59,18 @@ public class HerokuConfig {
         } catch (NoSuchAlgorithmException | KeyManagementException e) {
             throw new RuntimeException("Cannot obtain Redis connection!", e);
         }
+    }
+    @Bean
+    @Primary
+    public RedisTemplate<Long, Object> redisTemplate() {
+        RedisTemplate<Long, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory((RedisConnectionFactory) getConnection());
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setHashKeySerializer(new StringRedisSerializer());
+        template.setHashKeySerializer(new JdkSerializationRedisSerializer());
+        template.setValueSerializer(new JdkSerializationRedisSerializer());
+        template.setEnableTransactionSupport(true);
+        template.afterPropertiesSet();
+        return template;
     }
 }
