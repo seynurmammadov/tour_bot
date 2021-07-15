@@ -53,20 +53,21 @@ public class TelegramFacade {
     public BotApiMethod<?> handleUpdate(Update update, TelegramWebHook bot) throws TelegramApiException, IOException {
         SendMessage replyMessage = null;
         Message message = update.getMessage();
-        System.out.println(message);
         if (update.hasCallbackQuery()) {
             CallbackQuery callbackQuery = update.getCallbackQuery();
             logUtil.logCallBackQuery(update, callbackQuery);
             return callbackQueryHandler.handle(callbackQuery, bot);
-        } else if (message.getReplyToMessage() != null) {
-            logUtil.logNewMessage(message, "reply");
-            return replyHandler.handle(message, bot, true);
-        } else if (isCommand(message)) {
-            logUtil.logNewMessage(message, "command");
-            replyMessage = commandHandler.handle(message, bot, true);
-        } else if (message.hasText()) {
-            logUtil.logNewMessage(message);
-            replyMessage = inputMessageHandler.handle(message, bot, false);
+        } else if(message!=null){
+            if (message.getReplyToMessage() != null) {
+                logUtil.logNewMessage(message, "reply");
+                return replyHandler.handle(message, bot, true);
+            } else if (isCommand(message)) {
+                logUtil.logNewMessage(message, "command");
+                replyMessage = commandHandler.handle(message, bot, true);
+            } else if (message.hasText()) {
+                logUtil.logNewMessage(message);
+                replyMessage = inputMessageHandler.handle(message, bot, false);
+            }
         }
         return replyMessage;
     }
