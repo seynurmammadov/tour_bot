@@ -3,6 +3,7 @@ package az.code.telegram_bot.configs;
 import org.springframework.boot.autoconfigure.data.redis.LettuceClientConfigurationBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import redis.clients.jedis.Jedis;
 
 import javax.net.ssl.HostnameVerifier;
@@ -15,6 +16,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.X509Certificate;
 
 @Configuration
+@Profile("!dev")
 public class HerokuConfig {
     @Bean
     public LettuceClientConfigurationBuilderCustomizer lettuceClientConfigurationBuilderCustomizer() {
