@@ -34,7 +34,7 @@ public class MessageServiceImpl implements MessageService {
     final
     TranslateUtil translateUtil;
 
-
+    //TODO botu cole cixartmaq
     public MessageServiceImpl(ButtonsUtil buttonsUtil, CalendarUtil calendarUtil, TranslateUtil translateUtil) {
         this.buttonsUtil = buttonsUtil;
         this.calendarUtil = calendarUtil;

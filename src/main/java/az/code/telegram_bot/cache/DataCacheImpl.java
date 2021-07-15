@@ -55,7 +55,7 @@ public class DataCacheImpl implements DataCache {
             setQuestion(userId, questionService.getFirstQuestion());
         }
     }
-
+    //TODO Test
     @Override
     public UserData getUserProfileData(long userId) {
         UserData userProfileData = userDataRepository.findById(userId);
@@ -66,7 +66,6 @@ public class DataCacheImpl implements DataCache {
         }
         return userProfileData;
     }
-
     @Override
     public void saveUserProfileData(long userId, UserData userData) {
         userDataRepository.save(userId, userData);

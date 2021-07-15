@@ -1,5 +1,7 @@
 package az.code.telegram_bot.configs;
 
+import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
+import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.boot.autoconfigure.data.redis.LettuceClientConfigurationBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -48,7 +50,7 @@ public class HerokuConfig {
     }
     @Bean
     @Primary
-    public RedisTemplate<Long, Object> redisTemplate(JedisConnectionFactory connectionFactory) throws URISyntaxException {
+    public RedisTemplate<Long, Object> redisTemplate(JedisConnectionFactory connectionFactory){
         RedisTemplate<Long, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
         template.setKeySerializer(new StringRedisSerializer());
@@ -58,5 +60,12 @@ public class HerokuConfig {
         template.setEnableTransactionSupport(true);
         template.afterPropertiesSet();
         return template;
+    }
+    @Bean
+    public ConnectionFactory connectionFactory() throws URISyntaxException {
+        final URI rabbitMqUrl = new URI(System.getenv("CLOUDAMQP_URL"));
+        final CachingConnectionFactory factory = new CachingConnectionFactory();
+        factory.setUri(rabbitMqUrl);
+        return factory;
     }
 }
