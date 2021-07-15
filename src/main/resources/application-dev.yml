@@ -14,7 +14,7 @@ spring:
 telegrambot:
   userName: "@tour_app_bot"
   botToken: 1851213801:AAERzLNwhjZVDYtkIX6FdJmZxKX4EodDvLk
-  webHookPath: https://2062ad6c1149.ngrok.io
+  webHookPath: https://047fe18fcacc.ngrok.io
   telegramUrl: https://api.telegram.org/bot
   botPath: webhook
 

@@ -5,6 +5,7 @@ import az.code.telegram_bot.cache.DataCache;
 import az.code.telegram_bot.models.AgencyOffer;
 import az.code.telegram_bot.models.Question;
 import az.code.telegram_bot.models.BotSession;
+import az.code.telegram_bot.models.enums.QueryType;
 import az.code.telegram_bot.models.enums.StaticStates;
 import az.code.telegram_bot.services.Interfaces.*;
 import az.code.telegram_bot.utils.ButtonsUtil;
@@ -107,11 +108,7 @@ public class ListenerServiceImpl implements ListenerService {
                              BotSession botSession, InputFile inputFile) throws TelegramApiException, IOException {
         int offersCount = botSession.getCountOfOffers();
         if (!botSession.isLock()) {
-            Message message = bot.execute(SendPhoto.builder()
-                    .chatId(botSession.getChatId())
-                    .photo(inputFile).build());
-            offer.setMessageId(message.getMessageId());
-            offerService.save(offer);
+            sendMessageNSaveOffer(offer, bot, botSession, inputFile);
             if (offersCount % Integer.parseInt(maxSentOfferCount) == 0) {
                 botSession.setLock(true);
             }
@@ -123,8 +120,16 @@ public class ListenerServiceImpl implements ListenerService {
         sessionService.saveSeance(botSession);
     }
 
+    private void sendMessageNSaveOffer(AgencyOffer offer, TelegramWebHook bot, BotSession botSession, InputFile inputFile) throws TelegramApiException {
+        Message message = bot.execute(SendPhoto.builder()
+                .chatId(botSession.getChatId())
+                .photo(inputFile).build());
+        offer.setMessageId(message.getMessageId());
+        offerService.save(offer);
+    }
+
     private void sendNextButton(TelegramWebHook bot, BotSession botSession) throws TelegramApiException {
-        Question nextQuestion = questionService.getQuestionByKeyword(StaticStates.NEXT.toString());
+        Question nextQuestion = questionService.getQuestionByKeyword(QueryType.NEXT.toString());
         long langId = dataCache.getUserProfileData(botSession.getClient_id()).getLangId();
         if (botSession.getNextMessageId() == null) {
             Message message = messageService.sendNextButton(bot, botSession, nextQuestion, langId);

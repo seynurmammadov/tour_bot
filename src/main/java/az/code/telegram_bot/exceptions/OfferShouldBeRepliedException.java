@@ -16,8 +16,6 @@ public class OfferShouldBeRepliedException extends Exception implements MyCustom
                 return ru;
             case 2:
                 return az;
-            case 3:
-                return en;
             default:
                 return en;
         }

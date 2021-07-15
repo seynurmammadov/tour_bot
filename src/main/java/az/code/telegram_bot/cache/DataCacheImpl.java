@@ -66,6 +66,7 @@ public class DataCacheImpl implements DataCache {
         }
         return userProfileData;
     }
+
     @Override
     public void saveUserProfileData(long userId, UserData userData) {
         userDataRepository.save(userId, userData);

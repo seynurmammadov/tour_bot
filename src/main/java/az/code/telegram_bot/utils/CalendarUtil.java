@@ -6,37 +6,52 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 @Component
 public class CalendarUtil {
 
     public static final String IGNORE = "ignore!@#$%^&";
 
-    public static final String[] WD = {"M", "T", "W", "T", "F", "S", "S"};
+    public static final String[] WD_EN = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+    public static final String[] WD_RU = {"ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"};
+    public static final String[] WD_AZ = {"B.e.", "Ç.a.", "Ç.", "C.a.", "C.", "Ş.", "B."};
 
-    public InlineKeyboardMarkup generateKeyboard(LocalDate date) {
+    private long langId;
 
+    public InlineKeyboardMarkup generateCalendar(LocalDate date, long langId) {
+        this.langId = langId;
         if (date == null) {
             return null;
         }
+        return new InlineKeyboardMarkup(getFilledKeyboard(date));
+    }
 
+    private List<List<InlineKeyboardButton>> getFilledKeyboard(LocalDate date) {
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        keyboard.add(getMonth(date));
+        keyboard.add(getDays());
+        keyboard.addAll(addDays(date));
+        keyboard.add(getControlButtons(date));
+        return keyboard;
+    }
 
-        // row - Month and Year
-        List<InlineKeyboardButton> headerRow = new ArrayList<>();
-        headerRow.add(createButton(IGNORE, new SimpleDateFormat("MMM yyyy").format(date.toDate())));
-        keyboard.add(headerRow);
-
-        // row - Days of the week
-        List<InlineKeyboardButton> daysOfWeekRow = new ArrayList<>();
-        for (String day : WD) {
-            daysOfWeekRow.add(createButton(IGNORE, day));
+    private List<InlineKeyboardButton> getControlButtons(LocalDate date) {
+        List<InlineKeyboardButton> controlsRow = new ArrayList<>();
+        String prevMonth = date.minusMonths(1).getYear() + "-" + date.minusMonths(1).getMonthOfYear();
+        String nextMonth = date.plusMonths(1).getYear() + "-" + date.plusMonths(1).getMonthOfYear();
+        if (!(date.minusMonths(1).isBefore(LocalDate.now()) && !date.minusMonths(1).isEqual(LocalDate.now()))) {
+            controlsRow.add(createButton(prevMonth, "<"));
         }
-        keyboard.add(daysOfWeekRow);
+        controlsRow.add(createButton(nextMonth, ">"));
+        return controlsRow;
+    }
 
+    private List<List<InlineKeyboardButton>> addDays(LocalDate date) {
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         LocalDate firstDay = date.dayOfMonth().withMinimumValue();
 
         int shift = firstDay.dayOfWeek().get() - 1;
@@ -47,19 +62,48 @@ public class CalendarUtil {
             firstDay = firstDay.plusDays(7 - shift);
             shift = 0;
         }
+        return keyboard;
+    }
 
-        List<InlineKeyboardButton> controlsRow = new ArrayList<>();
-        controlsRow.add(createButton("<", "<"));
-        controlsRow.add(createButton(">", ">"));
-        keyboard.add(controlsRow);
-        return new InlineKeyboardMarkup(keyboard);
+    private List<InlineKeyboardButton> getDays() {
+        List<InlineKeyboardButton> daysOfWeekRow = new ArrayList<>();
+        List<String> WD = new ArrayList<>();
+        switch ((int) this.langId) {
+            case 1:
+                WD.addAll(Arrays.asList(WD_RU));
+                break;
+            case 2:
+                WD.addAll(Arrays.asList(WD_AZ));
+                break;
+            default:
+                WD.addAll(Arrays.asList(WD_EN));
+        }
+        for (String day : WD) {
+            daysOfWeekRow.add(createButton(IGNORE, day));
+        }
+        return daysOfWeekRow;
+    }
+
+    private List<InlineKeyboardButton> getMonth(LocalDate date) {
+        List<InlineKeyboardButton> headerRow = new ArrayList<>();
+        switch ((int) this.langId) {
+            case 1:
+                headerRow.add(createButton(IGNORE, date.toString("MMM yyyy", new Locale("ru"))));
+                break;
+            case 2:
+                headerRow.add(createButton(IGNORE, date.toString("MMM yyyy", new Locale("az"))));
+                break;
+            default:
+                headerRow.add(createButton(IGNORE, date.toString("MMM yyyy", new Locale("en"))));
+        }
+        return headerRow;
     }
 
     private InlineKeyboardButton createButton(String callBack, String text) {
-        InlineKeyboardButton inbtn = new InlineKeyboardButton();
-        inbtn.setCallbackData(callBack);
-        inbtn.setText(text);
-        return inbtn;
+        InlineKeyboardButton keyboardButton = new InlineKeyboardButton();
+        keyboardButton.setCallbackData(callBack);
+        keyboardButton.setText(text);
+        return keyboardButton;
     }
 
     private List<InlineKeyboardButton> buildRow(LocalDate date, int shift) {

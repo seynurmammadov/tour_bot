@@ -51,25 +51,29 @@ public class TelegramFacade {
     }
 
     public BotApiMethod<?> handleUpdate(Update update, TelegramWebHook bot) throws TelegramApiException, IOException {
-        SendMessage replyMessage = null;
         Message message = update.getMessage();
         if (update.hasCallbackQuery()) {
             CallbackQuery callbackQuery = update.getCallbackQuery();
             logUtil.logCallBackQuery(update, callbackQuery);
             return callbackQueryHandler.handle(callbackQuery, bot);
         } else if(message!=null){
-            if (message.getReplyToMessage() != null) {
-                logUtil.logNewMessage(message, "reply");
-                return replyHandler.handle(message, bot, true);
-            } else if (isCommand(message)) {
-                logUtil.logNewMessage(message, "command");
-                replyMessage = commandHandler.handle(message, bot, true);
-            } else if (message.hasText()) {
-                logUtil.logNewMessage(message);
-                replyMessage = inputMessageHandler.handle(message, bot, false);
-            }
+            return inlineMessage(bot, message);
         }
-        return replyMessage;
+        return null;
+    }
+
+    private SendMessage inlineMessage(TelegramWebHook bot, Message message) throws TelegramApiException {
+        if (message.getReplyToMessage() != null) {
+            logUtil.logNewMessage(message, "reply");
+            return replyHandler.handle(message, bot, true);
+        } else if (isCommand(message)) {
+            logUtil.logNewMessage(message, "command");
+            return commandHandler.handle(message, bot, true);
+        } else if (message.hasText()) {
+            logUtil.logNewMessage(message);
+            return inputMessageHandler.handle(message, bot, false);
+        }
+        return null;
     }
 
     public void sendPhoto(AgencyOffer agencyOffer, TelegramWebHook bot) throws IOException, TelegramApiException {

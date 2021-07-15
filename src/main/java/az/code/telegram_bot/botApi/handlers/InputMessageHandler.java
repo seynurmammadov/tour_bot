@@ -75,7 +75,7 @@ public class InputMessageHandler implements MessageHandler {
             checkAnswerNCaching(currentQuestion, message);
             currentQuestion = dataCache.getCurrentQuestion(userId);
         }
-        return getMessage(currentQuestion,message.getText());
+        return getMessage(currentQuestion, message.getText());
     }
 
     private SendMessage checkQuestionStatus(Question currentQuestion) {
@@ -87,8 +87,20 @@ public class InputMessageHandler implements MessageHandler {
             return messageService.createError(chatId,
                     new OfferShouldBeRepliedException(),
                     dataCache.getUserProfileData(userId).getLangId());
+        } else {
+            if (isCalendarQuestion(currentQuestion)) return messageService.createError(chatId,
+                    new IncorrectAnswerException(),
+                    dataCache.getUserProfileData(userId).getLangId());
         }
         return null;
+    }
+
+    private boolean isCalendarQuestion(Question currentQuestion) {
+        ActionType actionType = currentQuestion.getActions().stream()
+                .findFirst()
+                .orElseThrow(RuntimeException::new)
+                .getType();
+        return actionType == ActionType.CALENDAR;
     }
 
     private void acceptOffer(String phoneNumber) {
@@ -115,6 +127,12 @@ public class InputMessageHandler implements MessageHandler {
             regexFreeText(question, message, action);
         } else if (action.getType() == ActionType.BUTTON) {
             regexButton(question, message);
+        } else if (action.getType() == ActionType.CALENDAR_ANSWER) {
+            bot.execute(messageService.editInlineKeyboardText(chatId,
+                    question,
+                    message,
+                    dataCache.getUserProfileData(userId).getLangId()));
+            cachingDataNChangeState(question, message, action);
         }
     }
 
@@ -218,9 +236,9 @@ public class InputMessageHandler implements MessageHandler {
     }
 
     private void sendOfferOrAnswers(Question question, String userAnswer) throws TelegramApiException {
-        boolean end =Objects.equals(question.getState(), StaticStates.REPLY_END.toString());
+        boolean end = Objects.equals(question.getState(), StaticStates.REPLY_END.toString());
         Optional<Action> questionAction = question.getActions().stream().findFirst();
-        if(questionAction.isPresent()){
+        if (questionAction.isPresent()) {
             if (questionAction.get().getNextQuestion() == null && !end) {
                 sendCollectedData();
             }

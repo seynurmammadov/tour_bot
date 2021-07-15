@@ -35,7 +35,7 @@ public class WebHookController {
                 AgencyOffer.builder()
                         .UUID(UUID)
                         .file(file.getBytes())
-                        .agencyName("name")
+                        .agencyName("agency name")
                         .build());
         return new ResponseEntity<>(HttpStatus.OK);
     }

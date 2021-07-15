@@ -31,17 +31,5 @@ public class RedisConfig {
         conf.setPort(this.port);
         return new JedisConnectionFactory(conf);
     }
-    @Bean
-    @Primary
-    public RedisTemplate<Long, Object> redisTemplate(JedisConnectionFactory connectionFactory) {
-        RedisTemplate<Long, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(connectionFactory);
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setHashKeySerializer(new StringRedisSerializer());
-        template.setHashKeySerializer(new JdkSerializationRedisSerializer());
-        template.setValueSerializer(new JdkSerializationRedisSerializer());
-        template.setEnableTransactionSupport(true);
-        template.afterPropertiesSet();
-        return template;
-    }
+ 
 }

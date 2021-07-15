@@ -48,19 +48,7 @@ public class HerokuConfig {
                 .build();
         return new JedisConnectionFactory(configuration, clientConfig);
     }
-    @Bean
-    @Primary
-    public RedisTemplate<Long, Object> redisTemplate(JedisConnectionFactory connectionFactory){
-        RedisTemplate<Long, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(connectionFactory);
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setHashKeySerializer(new StringRedisSerializer());
-        template.setHashKeySerializer(new JdkSerializationRedisSerializer());
-        template.setValueSerializer(new JdkSerializationRedisSerializer());
-        template.setEnableTransactionSupport(true);
-        template.afterPropertiesSet();
-        return template;
-    }
+
     @Bean
     public ConnectionFactory connectionFactory() throws URISyntaxException {
         final URI rabbitMqUrl = new URI(System.getenv("CLOUDAMQP_URL"));
