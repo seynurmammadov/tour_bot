@@ -1,20 +1,10 @@
-server:
-  port: 5000
-
-
 spring:
 #  profiles:
 #    active: dev
-  datasource:
-    url: jdbc:postgresql://localhost:5432/tour_bot
-    username: postgres
-    password: seynur2462736
-    driver-class-name: org.postgresql.Driver
   jpa:
     open-in-view: false
     hibernate:
       ddl-auto: update
-
 telegrambot:
   userName: "@tour_app_bot"
   botToken: 1851213801:AAERzLNwhjZVDYtkIX6FdJmZxKX4EodDvLk
