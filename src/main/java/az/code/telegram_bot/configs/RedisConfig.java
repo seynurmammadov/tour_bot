@@ -33,9 +33,9 @@ public class RedisConfig {
     }
     @Bean
     @Primary
-    public RedisTemplate<Long, Object> redisTemplate() {
+    public RedisTemplate<Long, Object> redisTemplate(JedisConnectionFactory connectionFactory) {
         RedisTemplate<Long, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(connectionFactory());
+        template.setConnectionFactory(connectionFactory);
         template.setKeySerializer(new StringRedisSerializer());
         template.setHashKeySerializer(new StringRedisSerializer());
         template.setHashKeySerializer(new JdkSerializationRedisSerializer());

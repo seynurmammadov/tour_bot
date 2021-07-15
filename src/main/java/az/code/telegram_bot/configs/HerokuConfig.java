@@ -5,66 +5,52 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.jedis.JedisClientConfiguration;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPoolConfig;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import java.net.URI;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.X509Certificate;
+import java.net.URISyntaxException;
 
 @Configuration
 @Profile("!dev")
 public class HerokuConfig {
     @Bean
-    public LettuceClientConfigurationBuilderCustomizer lettuceClientConfigurationBuilderCustomizer() {
-        return clientConfigurationBuilder -> {
-            if (clientConfigurationBuilder.build().isUseSsl()) {
-                clientConfigurationBuilder.useSsl().disablePeerVerification();
-            }
-        };
+    JedisPoolConfig jedisPoolConfig() {
+        JedisPoolConfig poolConfig = new JedisPoolConfig();
+        poolConfig.setMaxTotal(10);
+        poolConfig.setMaxIdle(5);
+        poolConfig.setMinIdle(1);
+        poolConfig.setTestOnBorrow(true);
+        poolConfig.setTestOnReturn(true);
+        poolConfig.setTestWhileIdle(true);
+        return poolConfig;
     }
 
-    private static Jedis getConnection() {
-        try {
-            TrustManager bogusTrustManager = new X509TrustManager() {
-                public X509Certificate[] getAcceptedIssuers() {
-                    return null;
-                }
-
-                public void checkClientTrusted(X509Certificate[] certs, String authType) {
-                }
-
-                public void checkServerTrusted(X509Certificate[] certs, String authType) {
-                }
-            };
-
-            SSLContext sslContext = SSLContext.getInstance("SSL");
-            sslContext.init(null, new TrustManager[]{bogusTrustManager}, new java.security.SecureRandom());
-
-            HostnameVerifier bogusHostnameVerifier = (hostname, session) -> true;
-
-            return new Jedis(URI.create(System.getenv("REDIS_URL")),
-                    sslContext.getSocketFactory(),
-                    sslContext.getDefaultSSLParameters(),
-                    bogusHostnameVerifier);
-
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            throw new RuntimeException("Cannot obtain Redis connection!", e);
-        }
+    @Bean
+    public JedisConnectionFactory jedisConnectionFactory() throws URISyntaxException {
+        RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
+        String envRedisUrl = System.getenv("REDIS_URL");
+        URI redisUri = new URI(envRedisUrl);
+        configuration.setPort(redisUri.getPort());
+        configuration.setHostName(redisUri.getHost());
+        configuration.setPassword(redisUri.getUserInfo().split(":", 2)[1]);
+        JedisClientConfiguration.JedisClientConfigurationBuilder builder = JedisClientConfiguration.builder();
+        JedisClientConfiguration clientConfig = builder
+                .usePooling()
+                .poolConfig(jedisPoolConfig())
+                .build();
+        return new JedisConnectionFactory(configuration, clientConfig);
     }
     @Bean
     @Primary
-    public RedisTemplate<Long, Object> redisTemplate() {
+    public RedisTemplate<Long, Object> redisTemplate(JedisConnectionFactory connectionFactory) throws URISyntaxException {
         RedisTemplate<Long, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory((RedisConnectionFactory) getConnection());
+        template.setConnectionFactory(connectionFactory);
         template.setKeySerializer(new StringRedisSerializer());
         template.setHashKeySerializer(new StringRedisSerializer());
         template.setHashKeySerializer(new JdkSerializationRedisSerializer());
