@@ -1,17 +1,17 @@
-
 server:
   port: 5000
 
+
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-    username: sa
-    password: sa
-    driver-class-name: org.h2.Driver
+    url: jdbc:postgresql://localhost:5432/tour_bot
+    username: postgres
+    password: seynur2462736
+    driver-class-name: org.postgresql.Driver
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
 
 telegrambot:
   userName: "@tour_app_bot"
@@ -23,7 +23,6 @@ telegrambot:
 redis:
   host: localhost
   port: 6379
-
 offer:
   sentCount: "5"
   image:

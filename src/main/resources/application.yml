@@ -3,6 +3,8 @@ server:
 
 
 spring:
+#  profiles:
+#    active: dev
   datasource:
     url: jdbc:postgresql://localhost:5432/tour_bot
     username: postgres
@@ -16,13 +18,10 @@ spring:
 telegrambot:
   userName: "@tour_app_bot"
   botToken: 1851213801:AAERzLNwhjZVDYtkIX6FdJmZxKX4EodDvLk
-  webHookPath: https://2062ad6c1149.ngrok.io
+  webHookPath: https://tour-telegram-bot.herokuapp.com/
   telegramUrl: https://api.telegram.org/bot
   botPath: webhook
 
-redis:
-  host: localhost
-  port: 6379
 offer:
   sentCount: "5"
   image:
