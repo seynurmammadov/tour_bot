@@ -61,21 +61,21 @@ public class ListenerServiceImpl implements ListenerService {
 
     @Override
     public void sendPhoto(AgencyOffer offer, TelegramWebHook bot) throws IOException, TelegramApiException {
-        Optional<BotSession> tourRequest = sessionService.getByUUID(offer.getUUID());
-        if (tourRequest.isPresent()) {
+        Optional<BotSession> botSession = sessionService.getByUUID(offer.getUUID());
+        if (botSession.isPresent()) {
             InputFile inputFile = getInputFile(offer.getFile());
-            tourRequest.get().setCountOfOffers(tourRequest.get().getCountOfOffers() + 1);
-            sendActions(offer, bot, tourRequest.get(), inputFile);
+            botSession.get().setCountOfOffers(botSession.get().getCountOfOffers() + 1);
+            sendActions(offer, bot, botSession.get(), inputFile);
         }
     }
 
     @Override
     public void sendNextPhotos(Long userId, TelegramWebHook bot) throws TelegramApiException, IOException {
-        Optional<BotSession> tourRequest = sessionService.getByUserId(userId);
-        if (tourRequest.isPresent()) {
-            List<AgencyOffer> agencyOffers = offerService.getAllByUUID(tourRequest.get().getUUID());
-            tourRequest.get().setLock(false);
-            sendPhotoFromDb(bot, tourRequest.get(), agencyOffers);
+        Optional<BotSession> botSession = sessionService.getByUserId(userId);
+        if (botSession.isPresent()) {
+            List<AgencyOffer> agencyOffers = offerService.getAllByUUID(botSession.get().getUUID());
+            botSession.get().setLock(false);
+            sendPhotoFromDb(bot, botSession.get(), agencyOffers);
         }
     }
 
@@ -116,7 +116,6 @@ public class ListenerServiceImpl implements ListenerService {
                 botSession.setLock(true);
             }
             botSession.setCountOfSent(botSession.getCountOfSent() + 1);
-
         } else {
             sendNextButton(bot, botSession);
             savePhoto(offer);
