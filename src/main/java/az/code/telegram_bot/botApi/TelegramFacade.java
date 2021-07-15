@@ -53,6 +53,7 @@ public class TelegramFacade {
     public BotApiMethod<?> handleUpdate(Update update, TelegramWebHook bot) throws TelegramApiException, IOException {
         SendMessage replyMessage = null;
         Message message = update.getMessage();
+        System.out.println(message);
         if (update.hasCallbackQuery()) {
             CallbackQuery callbackQuery = update.getCallbackQuery();
             logUtil.logCallBackQuery(update, callbackQuery);
