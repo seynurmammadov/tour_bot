@@ -189,7 +189,11 @@ public class InputMessageHandler implements MessageHandler {
             state.setState("language");
             dataCache.setQuestion(userId, state);
         }
-        dataCache.addAnswer(userId, message.getText());
+        if(filteredAnswer.getKeyword()!=null){
+            dataCache.addAnswer(userId, filteredAnswer.getKeyword());
+        }else {
+            dataCache.addAnswer(userId, message.getText());
+        }
         dataCache.setQuestion(userId, filteredAnswer.getNextQuestion());
     }
 

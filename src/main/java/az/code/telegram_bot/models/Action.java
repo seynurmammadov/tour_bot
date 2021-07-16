@@ -22,6 +22,7 @@ public class Action implements Serializable {
     @Enumerated(EnumType.STRING)
     ActionType type;
     String callback;
+    String keyword;
     @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "question_id")
