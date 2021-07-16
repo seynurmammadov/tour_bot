@@ -55,7 +55,7 @@ public class CallbackQueryHandler implements QueryHandler {
         setData(buttonQuery, bot);
         BotApiMethod<?> message = regexInlineButton(buttonQuery);
         if (message != null) {
-            return regexInlineButton(buttonQuery);
+            return message;
         } else {
             message = queryByQuestion(buttonQuery, bot);
         }
