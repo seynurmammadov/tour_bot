@@ -1,10 +1,10 @@
 package az.code.telegram_bot.services;
 
-import az.code.telegram_bot.TelegramWebHook;
 import az.code.telegram_bot.exceptions.MyCustomException;
 import az.code.telegram_bot.models.Action;
 import az.code.telegram_bot.models.Question;
 import az.code.telegram_bot.models.BotSession;
+import az.code.telegram_bot.models.enums.ActionType;
 import az.code.telegram_bot.services.Interfaces.MessageService;
 import az.code.telegram_bot.utils.ButtonsUtil;
 import az.code.telegram_bot.utils.CalendarUtil;
@@ -12,18 +12,15 @@ import az.code.telegram_bot.utils.TranslateUtil;
 import org.joda.time.LocalDate;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 @Service
@@ -37,7 +34,6 @@ public class MessageServiceImpl implements MessageService {
     final
     TranslateUtil translateUtil;
 
-    //TODO botu cole cixartmaq
     public MessageServiceImpl(ButtonsUtil buttonsUtil, CalendarUtil calendarUtil, TranslateUtil translateUtil) {
         this.buttonsUtil = buttonsUtil;
         this.calendarUtil = calendarUtil;
@@ -50,26 +46,29 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public Message sendNextButton(TelegramWebHook bot, BotSession botSession, Question nextQuestion, Long langId) throws TelegramApiException {
-        String text = String.format(questionGenerator(nextQuestion, langId),
-                botSession.getCountOfOffers() - botSession.getCountOfSent());
-        return bot.execute(buttonsUtil.buttonMessage(
+    public SendMessage createNextBtn(BotSession botSession, Question nextQuestion, Long langId) {
+        return buttonsUtil.buttonMessage(
                 createInlMarkup(nextQuestion.getActions(), langId),
                 botSession.getChatId(),
-                text
-        ));
+                getNextBtnText(botSession, nextQuestion, langId)
+        );
     }
 
     @Override
-    public void updateNextButton(TelegramWebHook bot, BotSession botSession, Question nextQuestion, Long langId) throws TelegramApiException {
-        String text = String.format(questionGenerator(nextQuestion, langId),
-                botSession.getCountOfOffers() - botSession.getCountOfSent());
-        bot.execute(EditMessageText.builder()
+    public EditMessageText updateNextBtn(BotSession botSession, Question nextQuestion, Long langId) {
+        return EditMessageText.builder()
                 .chatId(botSession.getChatId())
                 .messageId(botSession.getNextMessageId())
-                .text(text)
+                .text(getNextBtnText(botSession, nextQuestion, langId))
                 .replyMarkup(createInlMarkup(nextQuestion.getActions(), langId))
-                .build());
+                .build();
+    }
+
+    private String getNextBtnText(BotSession botSession, Question nextQuestion, Long langId) {
+        return String.format(
+                questionGenerator(nextQuestion, langId),
+                botSession.getCountOfOffers() - botSession.getCountOfSent()
+        );
     }
 
     @Override
@@ -81,7 +80,6 @@ public class MessageServiceImpl implements MessageService {
                 .build();
     }
 
-
     @Override
     public SendMessage createCalendar(String chatId, Question question, Long langId) {
         return buttonsUtil.buttonMessage(
@@ -92,11 +90,11 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public EditMessageReplyMarkup updateCalendar(String chatId, Question question, Long langId, Integer messageId, LocalDate localDate) {
+    public EditMessageReplyMarkup updateCalendar(Message message, Long langId, LocalDate localDate) {
         return EditMessageReplyMarkup.builder()
-                .chatId(chatId)
+                .chatId(message.getChatId().toString())
                 .replyMarkup(calendarUtil.generateCalendar(localDate, langId))
-                .messageId(messageId)
+                .messageId(message.getMessageId())
                 .build();
 
     }
@@ -120,12 +118,20 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public void sendData(String chatId, Long userId, String data, TelegramWebHook bot) throws TelegramApiException {
-        bot.execute(SendMessage.builder()
+    public SendMessage createMsgWithData(String chatId, Long userId, String data) {
+        return SendMessage.builder()
                 .chatId(chatId)
                 .text(data)
                 .replyMarkup(buttonsUtil.removeReplyKeyboard())
-                .build());
+                .build();
+    }
+
+    @Override
+    public SendPhoto createPhoto(String chatId, InputFile inputFile) {
+        return SendPhoto.builder()
+                .chatId(chatId)
+                .photo(inputFile)
+                .build();
     }
 
     @Override
@@ -146,10 +152,12 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public EditMessageText editInlineKeyboardText(String chatId, Question question, Message message, Long langId) {
+    public EditMessageText editCalendarMessage(Question question, Message message, Long langId) {
         return EditMessageText.builder()
-                .chatId(chatId)
-                .text(questionGenerator(question, langId) + "\n" + message.getText())
+                .chatId(message.getChatId().toString())
+                .text(
+                        questionGenerator(question, langId) + "\n" + message.getText()
+                )
                 .messageId(message.getMessageId())
                 .replyMarkup(new InlineKeyboardMarkup(new ArrayList<>()))
                 .build();
@@ -159,13 +167,28 @@ public class MessageServiceImpl implements MessageService {
     public DeleteMessage deleteMessage(String chatId, Integer messageId) {
         return DeleteMessage.builder().chatId(chatId).messageId(messageId).build();
     }
-
+    @Override
+    public SendMessage getMessageByAction(Question question, long langId, ActionType actionType,String chatId) {
+        switch (actionType) {
+            case FREETEXT:
+                return simpleQuestionMessage(chatId, question, langId);
+            case BUTTON:
+                return msgWithRepKeyboard(chatId, question, langId);
+            case INLINE_BUTTON:
+                return msgWithInlKeyboard(chatId, question, langId);
+            case CALENDAR:
+                return createCalendar(chatId, question, langId);
+            default:
+                return null;
+        }
+    }
     private ReplyKeyboardMarkup createRepMarkup(Set<Action> actions, Long langId) {
-        List<KeyboardRow> keyboard = buttonsUtil.createRepKeyboard(
-                translateUtil.getActionsTranslate(actions, langId)
-        );
         return ReplyKeyboardMarkup.builder()
-                .keyboard(keyboard)
+                .keyboard(
+                        buttonsUtil.createRepKeyboard(
+                                translateUtil.getActionsTranslate(actions, langId)
+                        )
+                )
                 .resizeKeyboard(true)
                 .selective(true)
                 .oneTimeKeyboard(false)
@@ -173,8 +196,10 @@ public class MessageServiceImpl implements MessageService {
     }
 
     private InlineKeyboardMarkup createInlMarkup(Set<Action> actions, Long langId) {
-        List<List<InlineKeyboardButton>> keyboard = buttonsUtil.createInlKeyboard(
-                translateUtil.getActionsTranslate(actions, langId));
-        return new InlineKeyboardMarkup(keyboard);
+        return new InlineKeyboardMarkup(
+                buttonsUtil.createInlKeyboard(
+                        translateUtil.getActionsTranslate(actions, langId)
+                )
+        );
     }
 }

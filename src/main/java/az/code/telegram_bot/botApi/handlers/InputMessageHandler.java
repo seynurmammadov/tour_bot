@@ -22,6 +22,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -64,7 +65,7 @@ public class InputMessageHandler implements MessageHandler {
      * @return question with actionType, if was last question or if user answer is incorrect {@code null}
      */
     @Override
-    public SendMessage handle(Message message, TelegramWebHook bot, boolean command) throws TelegramApiException {
+    public SendMessage handle(Message message, TelegramWebHook bot, boolean command) throws TelegramApiException, IOException {
         setData(message, bot);
         Question currentQuestion = dataCache.getCurrentQuestion(userId);
         SendMessage sendMessage = checkQuestionStatus(currentQuestion);
@@ -82,15 +83,15 @@ public class InputMessageHandler implements MessageHandler {
         if (currentQuestion == null) {
             return messageService.createError(chatId,
                     new StartBeforeException(),
-                    dataCache.getUserProfileData(userId).getLangId());
+                    dataCache.getUserData(userId).getLangId());
         } else if (Objects.equals(currentQuestion.getState(), StaticStates.END.toString())) {
             return messageService.createError(chatId,
                     new OfferShouldBeRepliedException(),
-                    dataCache.getUserProfileData(userId).getLangId());
+                    dataCache.getUserData(userId).getLangId());
         } else {
             if (isCalendarQuestion(currentQuestion)) return messageService.createError(chatId,
                     new IncorrectAnswerException(),
-                    dataCache.getUserProfileData(userId).getLangId());
+                    dataCache.getUserData(userId).getLangId());
         }
         return null;
     }
@@ -103,15 +104,15 @@ public class InputMessageHandler implements MessageHandler {
         return actionType == ActionType.CALENDAR;
     }
 
-    private void acceptOffer(String phoneNumber) {
+    private void acceptOffer(String phoneNumber) throws IOException {
         template.convertAndSend(RabbitMQConfig.exchange,
                 RabbitMQConfig.cancelled,
-                dataCache.getUserProfileData(userId).getUUID());
+                dataCache.getUserData(userId).getUUID());
         AcceptedOffer offer = acceptedOfferRepository.findById(userId);
         offer.setPhoneNumber(phoneNumber);
         template.convertAndSend(RabbitMQConfig.exchange, RabbitMQConfig.accepted, offer);
         dataCache.clearDataAndState(userId);
-        sessionService.deactivateSeance(userId);
+        sessionService.deactivate(userId);
     }
 
     /**
@@ -128,10 +129,11 @@ public class InputMessageHandler implements MessageHandler {
         } else if (action.getType() == ActionType.BUTTON) {
             regexButton(question, message);
         } else if (action.getType() == ActionType.CALENDAR_ANSWER) {
-            bot.execute(messageService.editInlineKeyboardText(chatId,
+            bot.execute(messageService.editCalendarMessage(
                     question,
                     message,
-                    dataCache.getUserProfileData(userId).getLangId()));
+                    dataCache.getUserData(userId).getLangId())
+            );
             cachingDataNChangeState(question, message, action);
         }
     }
@@ -153,7 +155,7 @@ public class InputMessageHandler implements MessageHandler {
         } else if (question.getState() != null) {
             bot.execute(messageService.createError(chatId,
                     new IncorrectAnswerException(),
-                    dataCache.getUserProfileData(userId).getLangId()));
+                    dataCache.getUserData(userId).getLangId()));
         }
     }
 
@@ -167,7 +169,7 @@ public class InputMessageHandler implements MessageHandler {
     private void regexFreeText(Question question, Message message, Action action) throws TelegramApiException {
         if (!Pattern.matches(question.getRegex(), message.getText())) {
             bot.execute(messageService.createError(chatId, new IncorrectAnswerException(),
-                    dataCache.getUserProfileData(userId).getLangId()));
+                    dataCache.getUserData(userId).getLangId()));
         } else {
             cachingDataNChangeState(question, message, action);
         }
@@ -197,8 +199,8 @@ public class InputMessageHandler implements MessageHandler {
     private void sendCollectedData() throws TelegramApiException {
         template.convertAndSend(RabbitMQConfig.exchange,
                 RabbitMQConfig.sent,
-                dataCache.getUserProfileData(userId));
-        messageService.sendData(chatId, userId, dataCache.getUserProfileData(userId).toString(), bot);
+                dataCache.getUserData(userId));
+        bot.execute(messageService.createMsgWithData(chatId, userId, dataCache.getUserData(userId).toString()));
         dataCache.setQuestion(userId, Question.builder().state(StaticStates.END.toString()).build());
         dataCache.clearData(userId);
     }
@@ -210,32 +212,19 @@ public class InputMessageHandler implements MessageHandler {
      * @param question the question answered by the user
      * @return Message which created by actionType
      */
-    private SendMessage getMessage(Question question, String userAnswer) throws TelegramApiException {
-        long langId = dataCache.getUserProfileData(userId).getLangId();
+    private SendMessage getMessage(Question question, String userAnswer) throws TelegramApiException, IOException {
+        long langId = dataCache.getUserData(userId).getLangId();
         ActionType actionType = question.getActions().stream()
                 .findFirst()
                 .orElseThrow(RuntimeException::new)
                 .getType();
-        SendMessage message = null;
-        switch (actionType) {
-            case FREETEXT:
-                message = messageService.simpleQuestionMessage(chatId, question, langId);
-                break;
-            case BUTTON:
-                message = messageService.msgWithRepKeyboard(chatId, question, langId);
-                break;
-            case INLINE_BUTTON:
-                message = messageService.msgWithInlKeyboard(chatId, question, langId);
-                break;
-            case CALENDAR:
-                message = messageService.createCalendar(chatId, question, langId);
-                break;
-        }
         sendOfferOrAnswers(question, userAnswer);
-        return message;
+        return messageService.getMessageByAction(question, langId, actionType,chatId);
     }
 
-    private void sendOfferOrAnswers(Question question, String userAnswer) throws TelegramApiException {
+
+
+    private void sendOfferOrAnswers(Question question, String userAnswer) throws TelegramApiException, IOException {
         boolean end = Objects.equals(question.getState(), StaticStates.REPLY_END.toString());
         Optional<Action> questionAction = question.getActions().stream().findFirst();
         if (questionAction.isPresent()) {

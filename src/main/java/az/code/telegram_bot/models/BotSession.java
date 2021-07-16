@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "bot_session")
 @Builder
+@ToString
 public class BotSession {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

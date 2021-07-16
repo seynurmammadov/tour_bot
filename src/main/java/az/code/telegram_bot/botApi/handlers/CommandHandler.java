@@ -14,6 +14,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.IOException;
 import java.util.UUID;
 
 @Component
@@ -44,11 +45,11 @@ public class CommandHandler implements MessageHandler {
     }
 
     @Override
-    public SendMessage handle(Message message, TelegramWebHook bot, boolean isCommand) throws TelegramApiException {
+    public SendMessage handle(Message message, TelegramWebHook bot, boolean isCommand) throws TelegramApiException, IOException {
         return handle(message, bot);
     }
 
-    private SendMessage handle(Message message, TelegramWebHook bot) throws TelegramApiException {
+    private SendMessage handle(Message message, TelegramWebHook bot) throws TelegramApiException, IOException {
         setData(message, bot);
         CommandType commandType = CommandType.valueOfCommand(message.getText());
         switch (commandType) {
@@ -59,38 +60,38 @@ public class CommandHandler implements MessageHandler {
             default:
                 return messageService.createError(chatId,
                         new UnknownCommandException(),
-                        dataCache.getUserProfileData(userId).getLangId());
+                        dataCache.getUserData(userId).getLangId());
         }
     }
 
-    public SendMessage stopCommand() {
+    public SendMessage stopCommand() throws IOException {
         if (sessionService.getByUserId(userId).isPresent()) {
             template.convertAndSend(RabbitMQConfig.exchange,
                     RabbitMQConfig.cancelled,
-                    dataCache.getUserProfileData(userId).getUUID());
+                    dataCache.getUserData(userId).getUUID());
             dataCache.clearDataAndState(userId);
-            sessionService.deactivateSeance(userId);
+            sessionService.deactivate(userId);
             return messageService.createNotify(chatId,
                     new StopNotifyException(),
-                    dataCache.getUserProfileData(userId).getLangId());
+                    dataCache.getUserData(userId).getLangId());
         } else {
             return messageService.createError(chatId,
                     new StartBeforeStopException(),
-                    dataCache.getUserProfileData(userId).getLangId());
+                    dataCache.getUserData(userId).getLangId());
         }
     }
 
-    private SendMessage startCommand(Message message) throws TelegramApiException {
+    private SendMessage startCommand(Message message) throws TelegramApiException, IOException {
         if (sessionService.getByUserId(userId).isEmpty()) {
             dataCache.setFirstQuestion(userId);
             String randUUID = UUID.randomUUID().toString();
             dataCache.setUUID(userId, randUUID);
-            sessionService.createSeance(userId, chatId, randUUID);
+            sessionService.create(userId, chatId, randUUID);
             return inputMessageHandler.handle(message, this.bot, true);
         } else {
             return messageService.createError(chatId,
                     new StopBeforeException(),
-                    dataCache.getUserProfileData(userId).getLangId());
+                    dataCache.getUserData(userId).getLangId());
         }
     }
 

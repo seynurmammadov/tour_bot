@@ -11,12 +11,14 @@ import az.code.telegram_bot.repositories.RedisRepository;
 import az.code.telegram_bot.services.Interfaces.AgencyOfferService;
 import az.code.telegram_bot.services.Interfaces.MessageService;
 import az.code.telegram_bot.services.Interfaces.QuestionService;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.io.IOException;
 import java.util.Optional;
 
 @Component
@@ -52,30 +54,29 @@ public class ReplyMessageHandler implements MessageHandler {
 
 
     @Override
-    public SendMessage handle(Message message, TelegramWebHook bot, boolean isCommand)
-            throws TelegramApiException {
+    public SendMessage handle(Message message, TelegramWebHook bot, boolean isCommand) throws TelegramApiException, IOException {
         setData(message, bot);
-        String UUID = dataCache.getUserProfileData(userId).getUUID();
+        String UUID = dataCache.getUserData(userId).getUUID();
         Optional<AgencyOffer> offer = offerService.getByMessageIdAndUUID(this.replyId, UUID);
         if (offer.isPresent()) {
-            return setContactQuestion(message, bot, offer);
+            return setContactQuestion(message, bot, offer.get());
         } else {
             return messageService.createError(chatId,
                     new OfferShouldBeRepliedException(),
-                    dataCache.getUserProfileData(userId).getLangId());
+                    dataCache.getUserData(userId).getLangId());
         }
     }
 
-    private SendMessage setContactQuestion(Message message, TelegramWebHook bot, Optional<AgencyOffer> offer) throws TelegramApiException {
+    private SendMessage setContactQuestion(Message message, TelegramWebHook bot, AgencyOffer offer) throws TelegramApiException, IOException {
         dataCache.setQuestion(userId,
-                questionService.getQuestionByKeyword(StaticStates.REPLY_START.toString()));
+                questionService.getByKeyword(StaticStates.REPLY_START.toString()));
         acceptedOfferRepository.save(userId,
                 AcceptedOffer.builder()
-                        .agencyName(offer.get().getAgencyName())
+                        .agencyName(offer.getAgencyName())
                         .firstName(message.getFrom().getFirstName())
                         .lastName(message.getFrom().getLastName())
                         .userName(message.getFrom().getUserName())
-                        .UUID(offer.get().getUUID())
+                        .UUID(offer.getUUID())
                         .userId(this.userId)
                         .build());
         return inputMessageHandler.handle(message, bot, true);

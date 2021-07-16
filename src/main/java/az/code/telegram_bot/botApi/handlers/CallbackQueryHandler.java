@@ -53,14 +53,21 @@ public class CallbackQueryHandler implements QueryHandler {
     @Override
     public BotApiMethod<?> handle(CallbackQuery buttonQuery, TelegramWebHook bot) throws TelegramApiException, IOException {
         setData(buttonQuery, bot);
+        BotApiMethod<?> message = regexInlineButton(buttonQuery);
+        if (message != null) {
+            return regexInlineButton(buttonQuery);
+        } else {
+            message = queryByQuestion(buttonQuery, bot);
+        }
+        return message;
+    }
+
+    private BotApiMethod<?> queryByQuestion(CallbackQuery buttonQuery, TelegramWebHook bot) throws TelegramApiException, IOException {
         Question question = dataCache.getCurrentQuestion(userId);
         ActionType actionType = getActionType(buttonQuery, bot, question);
         if (actionType == null) return null;
-        switch (actionType) {
-            case CALENDAR:
-                return regexCalendar(buttonQuery, question);
-            case INLINE_BUTTON:
-                return regexInlineButton(buttonQuery);
+        if (actionType == ActionType.CALENDAR) {
+            return regexCalendar(buttonQuery, question);
         }
         return null;
     }
@@ -73,27 +80,30 @@ public class CallbackQueryHandler implements QueryHandler {
                     .orElseThrow(RuntimeException::new)
                     .getType();
         } catch (Exception e) {
-            bot.execute(messageService.deleteMessage(chatId, buttonQuery.getMessage().getMessageId()));
+            bot.execute(
+                    messageService.deleteMessage(
+                            chatId,
+                            buttonQuery.getMessage().getMessageId()
+                    ));
             return null;
         }
         return actionType;
     }
 
-    private BotApiMethod<?> regexCalendar(CallbackQuery buttonQuery, Question question) throws TelegramApiException {
+    private BotApiMethod<?> regexCalendar(CallbackQuery buttonQuery, Question question) throws TelegramApiException, IOException {
         if (buttonQuery.getData().equals(CalendarUtil.IGNORE))
             return null;
         else if (Pattern.matches(question.getRegex(), buttonQuery.getData())) {
             return setCalendarAnswer(buttonQuery);
         } else {
-            return messageService.updateCalendar(chatId,
-                    question,
-                    langId, buttonQuery.getMessage().getMessageId(),
+            return messageService.updateCalendar(buttonQuery.getMessage(),
+                    langId,
                     LocalDate.parse(buttonQuery.getData() + "-" + LocalDate.now().getDayOfMonth())
             );
         }
     }
 
-    private SendMessage setCalendarAnswer(CallbackQuery buttonQuery) throws TelegramApiException {
+    private SendMessage setCalendarAnswer(CallbackQuery buttonQuery) throws TelegramApiException, IOException {
         LocalDate date = LocalDate.parse(buttonQuery.getData());
         if (date.isBefore(LocalDate.now())) {
             return messageService.createError(chatId, new BeforeCurrentDateException(), langId);
@@ -129,7 +139,7 @@ public class CallbackQueryHandler implements QueryHandler {
     private void setData(CallbackQuery query, TelegramWebHook bot) {
         this.userId = query.getFrom().getId();
         this.chatId = query.getMessage().getChatId().toString();
-        this.langId = dataCache.getUserProfileData(userId).getLangId();
+        this.langId = dataCache.getUserData(userId).getLangId();
         this.bot = bot;
     }
 

@@ -33,7 +33,7 @@ public class CalendarUtil {
     private List<List<InlineKeyboardButton>> getFilledKeyboard(LocalDate date) {
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         keyboard.add(getMonth(date));
-        keyboard.add(getDays());
+        keyboard.add(getWDButtons());
         keyboard.addAll(addDays(date));
         keyboard.add(getControlButtons(date));
         return keyboard;
@@ -41,9 +41,11 @@ public class CalendarUtil {
 
     private List<InlineKeyboardButton> getControlButtons(LocalDate date) {
         List<InlineKeyboardButton> controlsRow = new ArrayList<>();
-        String prevMonth = date.minusMonths(1).getYear() + "-" + date.minusMonths(1).getMonthOfYear();
-        String nextMonth = date.plusMonths(1).getYear() + "-" + date.plusMonths(1).getMonthOfYear();
-        if (!(date.minusMonths(1).isBefore(LocalDate.now()) && !date.minusMonths(1).isEqual(LocalDate.now()))) {
+        LocalDate minusM = date.minusMonths(1);
+        LocalDate plusM = date.plusMonths(1);
+        String nextMonth = plusM.getYear() + "-" + plusM.getMonthOfYear();
+        if (!(minusM.isBefore(LocalDate.now()) && !minusM.isEqual(LocalDate.now()))) {
+            String prevMonth = minusM.getYear() + "-" + minusM.getMonthOfYear();
             controlsRow.add(createButton(prevMonth, "<"));
         }
         controlsRow.add(createButton(nextMonth, ">"));
@@ -65,8 +67,7 @@ public class CalendarUtil {
         return keyboard;
     }
 
-    private List<InlineKeyboardButton> getDays() {
-        List<InlineKeyboardButton> daysOfWeekRow = new ArrayList<>();
+    private List<InlineKeyboardButton> getWDButtons() {
         List<String> WD = new ArrayList<>();
         switch ((int) this.langId) {
             case 1:
@@ -78,6 +79,11 @@ public class CalendarUtil {
             default:
                 WD.addAll(Arrays.asList(WD_EN));
         }
+        return getWDButtons(WD);
+    }
+
+    private List<InlineKeyboardButton> getWDButtons(List<String> WD) {
+        List<InlineKeyboardButton> daysOfWeekRow = new ArrayList<>();
         for (String day : WD) {
             daysOfWeekRow.add(createButton(IGNORE, day));
         }
@@ -100,10 +106,9 @@ public class CalendarUtil {
     }
 
     private InlineKeyboardButton createButton(String callBack, String text) {
-        InlineKeyboardButton keyboardButton = new InlineKeyboardButton();
-        keyboardButton.setCallbackData(callBack);
-        keyboardButton.setText(text);
-        return keyboardButton;
+        return InlineKeyboardButton.builder()
+                .callbackData(callBack)
+                .text(text).build();
     }
 
     private List<InlineKeyboardButton> buildRow(LocalDate date, int shift) {

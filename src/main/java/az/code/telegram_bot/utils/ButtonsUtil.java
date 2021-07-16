@@ -28,9 +28,12 @@ public class ButtonsUtil {
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
         for (ActionTranslate text : actionTranslates) {
             List<InlineKeyboardButton> rowInline = new ArrayList<>();
-            rowInline.add(InlineKeyboardButton.builder()
-                    .callbackData(text.getAction().getCallback())
-                    .text(text.getContext()).build());
+            rowInline.add(
+                    InlineKeyboardButton.builder()
+                            .callbackData(text.getAction().getCallback())
+                            .text(text.getContext())
+                            .build()
+            );
             rowsInline.add(rowInline);
         }
         return rowsInline;

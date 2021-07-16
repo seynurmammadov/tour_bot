@@ -18,13 +18,13 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
-    public Question getQuestionByKeyword(String keyword) {
+    public Question getByKeyword(String keyword) {
         return questionRepository.getQuestionByKeyword(keyword);
     }
 
     @Override
     @Cacheable("firstQuestion")
-    public Question getFirstQuestion() {
+    public Question getFirst() {
         return questionRepository.getFirstQuestion();
     }
 

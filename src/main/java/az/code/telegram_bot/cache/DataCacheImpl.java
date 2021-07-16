@@ -9,6 +9,7 @@ import az.code.telegram_bot.services.Interfaces.MessageService;
 import az.code.telegram_bot.services.Interfaces.QuestionService;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.HashMap;
 
 @Component
@@ -52,12 +53,12 @@ public class DataCacheImpl implements DataCache {
     @Override
     public void setFirstQuestion(long userId) {
         if (getCurrentQuestion(userId) == null) {
-            setQuestion(userId, questionService.getFirstQuestion());
+            setQuestion(userId, questionService.getFirst());
         }
     }
     //TODO Test
     @Override
-    public UserData getUserProfileData(long userId) {
+    public UserData getUserData(long userId) {
         UserData userProfileData = userDataRepository.findById(userId);
         if (userProfileData == null) {
             return new UserData();
@@ -74,7 +75,7 @@ public class DataCacheImpl implements DataCache {
 
     @Override
     public void setLanguage(long userId, String langName) {
-        UserData userData = getUserProfileData(userId);
+        UserData userData = getUserData(userId);
         Long langId = languageRepository.getByLangName(langName).getId();
         userData.setLangId(langId);
         saveUserProfileData(userId, userData);
@@ -82,21 +83,21 @@ public class DataCacheImpl implements DataCache {
 
     @Override
     public void setUUID(long userId, String UUID) {
-        UserData userData = getUserProfileData(userId);
+        UserData userData = getUserData(userId);
         userData.setUUID(UUID);
         saveUserProfileData(userId, userData);
     }
 
     @Override
     public void addAnswer(long userId, String answer) {
-        UserData userData = getUserProfileData(userId);
+        UserData userData = getUserData(userId);
         userData.addAnswer(answer, getCurrentQuestion(userId).getState());
         saveUserProfileData(userId, userData);
     }
 
     @Override
-    public void clearDataAndState(Long userId) {
-        UserData userData = getUserProfileData(userId);
+    public void clearDataAndState(Long userId) throws IOException {
+        UserData userData = getUserData(userId);
         offerService.clearData(userData.getUUID());
         stateRepository.delete(userId);
         userDataRepository.delete(userId);
@@ -105,7 +106,7 @@ public class DataCacheImpl implements DataCache {
 
     @Override
     public void clearData(Long userId) {
-        UserData userData = getUserProfileData(userId);
+        UserData userData = getUserData(userId);
         userDataRepository.delete(userId);
         saveUserProfileData(userId, UserData.builder()
                 .langId(userData.getLangId())

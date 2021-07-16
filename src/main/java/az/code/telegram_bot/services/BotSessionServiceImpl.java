@@ -19,7 +19,7 @@ public class BotSessionServiceImpl implements BotSessionService {
     }
 
     @Override
-    public void createSeance(Long userId, String chatId, String randUUID) {
+    public void create(Long userId, String chatId, String randUUID) {
         sessionRepository.save(BotSession.builder()
                 .status(true)
                 .countOfOffers(0)
@@ -33,12 +33,12 @@ public class BotSessionServiceImpl implements BotSessionService {
     }
 
     @Override
-    public void saveSeance(BotSession botSession) {
+    public void save(BotSession botSession) {
         sessionRepository.save(botSession);
     }
 
     @Override
-    public void deactivateSeance(Long userId) {
+    public void deactivate(Long userId) {
         sessionRepository.deactivateSeance(userId);
     }
 

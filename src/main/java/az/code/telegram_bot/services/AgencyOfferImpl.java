@@ -3,11 +3,10 @@ package az.code.telegram_bot.services;
 import az.code.telegram_bot.models.AgencyOffer;
 import az.code.telegram_bot.repositories.AgencyOfferRepository;
 import az.code.telegram_bot.services.Interfaces.AgencyOfferService;
+import az.code.telegram_bot.utils.FileUtil;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,8 +15,12 @@ public class AgencyOfferImpl implements AgencyOfferService {
     final
     AgencyOfferRepository offerRepository;
 
-    public AgencyOfferImpl(AgencyOfferRepository receiverRepository) {
+    final
+    FileUtil fileUtil;
+
+    public AgencyOfferImpl(AgencyOfferRepository receiverRepository, FileUtil fileUtil) {
         this.offerRepository = receiverRepository;
+        this.fileUtil = fileUtil;
     }
 
     @Override
@@ -26,25 +29,22 @@ public class AgencyOfferImpl implements AgencyOfferService {
     }
 
     @Override
-    public void clearData(String UUID) {
+    public void clearData(String UUID) throws IOException {
         deleteLocal(UUID);
         offerRepository.deleteByUUID(UUID);
     }
 
     @Override
-    public void deleteOffer(AgencyOffer offer) {
+    public void delete(AgencyOffer offer) {
         offerRepository.delete(offer);
     }
 
-    private void deleteLocal(String UUID) {
+    private void deleteLocal(String UUID) throws IOException {
         List<AgencyOffer> agencyOffers = getAllByUUID(UUID);
-        agencyOffers.forEach(o -> {
-            try {
-                Files.deleteIfExists(Paths.get(o.getFilePath()));
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
+        for (AgencyOffer offer: agencyOffers) {
+            fileUtil.deleteWithPath(offer.getFilePath());
+        }
+
     }
 
     public List<AgencyOffer> getAllByUUID(String UUID) {
