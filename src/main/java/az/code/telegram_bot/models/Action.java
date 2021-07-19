@@ -15,6 +15,8 @@ import java.util.Set;
 @Entity
 @Table(name = "actions")
 @Builder
+@ToString
+@EqualsAndHashCode
 public class Action implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

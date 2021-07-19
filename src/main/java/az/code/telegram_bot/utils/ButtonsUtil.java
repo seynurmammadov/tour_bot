@@ -23,7 +23,6 @@ public class ButtonsUtil {
         }
         return keyboard;
     }
-
     public List<List<InlineKeyboardButton>> createInlKeyboard(List<ActionTranslate> actionTranslates) {
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
         for (ActionTranslate text : actionTranslates) {

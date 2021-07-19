@@ -215,7 +215,7 @@ public class InputMessageHandler implements MessageHandler {
      * @param question the question answered by the user
      * @return Message which created by actionType
      */
-    private SendMessage getMessage(Question question, String userAnswer) throws TelegramApiException, IOException {
+    public SendMessage getMessage(Question question, String userAnswer) throws TelegramApiException, IOException {
         long langId = dataCache.getUserData(userId).getLangId();
         ActionType actionType = question.getActions().stream()
                 .findFirst()

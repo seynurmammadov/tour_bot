@@ -63,8 +63,7 @@ public class MessageServiceImpl implements MessageService {
                 .replyMarkup(createInlMarkup(nextQuestion.getActions(), langId))
                 .build();
     }
-
-    private String getNextBtnText(BotSession botSession, Question nextQuestion, Long langId) {
+    public String getNextBtnText(BotSession botSession, Question nextQuestion, Long langId) {
         return String.format(
                 questionGenerator(nextQuestion, langId),
                 botSession.getCountOfOffers() - botSession.getCountOfSent()
@@ -168,7 +167,8 @@ public class MessageServiceImpl implements MessageService {
         return DeleteMessage.builder().chatId(chatId).messageId(messageId).build();
     }
     @Override
-    public SendMessage getMessageByAction(Question question, long langId, ActionType actionType,String chatId) {
+    public SendMessage getMessageByAction(Question question, long langId,
+                                          ActionType actionType,String chatId) {
         switch (actionType) {
             case FREETEXT:
                 return simpleQuestionMessage(chatId, question, langId);
