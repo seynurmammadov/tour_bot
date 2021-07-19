@@ -71,7 +71,6 @@ public class CallbackQueryHandler implements QueryHandler {
         }
         return null;
     }
-
     private ActionType getActionType(CallbackQuery buttonQuery, TelegramWebHook bot, Question question) throws TelegramApiException {
         ActionType actionType;
         try {

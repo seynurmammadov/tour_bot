@@ -95,8 +95,7 @@ public class InputMessageHandler implements MessageHandler {
         }
         return null;
     }
-
-    private boolean isCalendarQuestion(Question currentQuestion) {
+    public boolean isCalendarQuestion(Question currentQuestion) {
         ActionType actionType = currentQuestion.getActions().stream()
                 .findFirst()
                 .orElseThrow(RuntimeException::new)
@@ -225,7 +224,6 @@ public class InputMessageHandler implements MessageHandler {
         sendOfferOrAnswers(question, userAnswer);
         return messageService.getMessageByAction(question, langId, actionType,chatId);
     }
-
 
 
     private void sendOfferOrAnswers(Question question, String userAnswer) throws TelegramApiException, IOException {

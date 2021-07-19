@@ -1,6 +1,8 @@
 package az.code.telegram_bot.utils;
 
 
+import lombok.Getter;
+import lombok.Setter;
 import org.joda.time.LocalDate;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -20,7 +22,9 @@ public class CalendarUtil {
     public static final String[] WD_RU = {"ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"};
     public static final String[] WD_AZ = {"B.e.", "Ç.a.", "Ç.", "C.a.", "C.", "Ş.", "B."};
 
-    private long langId;
+    @Setter
+    @Getter
+    public long langId;
 
     public InlineKeyboardMarkup generateCalendar(LocalDate date, long langId) {
         this.langId = langId;
@@ -39,7 +43,7 @@ public class CalendarUtil {
         return keyboard;
     }
 
-    private List<InlineKeyboardButton> getControlButtons(LocalDate date) {
+    public List<InlineKeyboardButton> getControlButtons(LocalDate date) {
         List<InlineKeyboardButton> controlsRow = new ArrayList<>();
         LocalDate minusM = date.minusMonths(1);
         LocalDate plusM = date.plusMonths(1);
@@ -67,7 +71,7 @@ public class CalendarUtil {
         return keyboard;
     }
 
-    private List<InlineKeyboardButton> getWDButtons() {
+    public List<InlineKeyboardButton> getWDButtons() {
         List<String> WD = new ArrayList<>();
         switch ((int) this.langId) {
             case 1:
@@ -90,7 +94,7 @@ public class CalendarUtil {
         return daysOfWeekRow;
     }
 
-    private List<InlineKeyboardButton> getMonth(LocalDate date) {
+    public List<InlineKeyboardButton> getMonth(LocalDate date) {
         List<InlineKeyboardButton> headerRow = new ArrayList<>();
         switch ((int) this.langId) {
             case 1:

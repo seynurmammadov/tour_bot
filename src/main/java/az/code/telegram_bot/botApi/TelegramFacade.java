@@ -79,8 +79,7 @@ public class TelegramFacade {
     public void sendPhoto(AgencyOffer agencyOffer, TelegramWebHook bot) throws IOException, TelegramApiException {
         listenerService.sendPhoto(agencyOffer, bot);
     }
-
-    private boolean isCommand(Message message) {
+    public boolean isCommand(Message message) {
         if (message.hasText()) {
             return message.getText().startsWith("/");
         }
