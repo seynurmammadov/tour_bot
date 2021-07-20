@@ -1,6 +1,8 @@
 package az.code.telegram_bot.models;
 
 import lombok.*;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -22,8 +24,10 @@ public class Question implements Serializable {
     Long id;
     String state;
     String regex;
+    @EqualsAndHashCode.Exclude
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "question", fetch = FetchType.EAGER)
     List<QuestionTranslate> questionTranslates;
+    @EqualsAndHashCode.Exclude
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "question", fetch = FetchType.EAGER)
     Set<Action> actions;
 }

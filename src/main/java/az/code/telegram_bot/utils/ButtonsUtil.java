@@ -15,14 +15,19 @@ import java.util.List;
 @Component
 public class ButtonsUtil {
     public List<KeyboardRow> createRepKeyboard(List<ActionTranslate> actionTranslates) {
+        return createRepKeyboard(actionTranslates, false);
+    }
+
+    public List<KeyboardRow> createRepKeyboard(List<ActionTranslate> actionTranslates, boolean contact_info) {
         List<KeyboardRow> keyboard = new ArrayList<>();
         for (ActionTranslate text : actionTranslates) {
             KeyboardRow row = new KeyboardRow();
-            row.add(new KeyboardButton(text.getContext()));
+            row.add(KeyboardButton.builder().text(text.getContext()).requestContact(contact_info).build());
             keyboard.add(row);
         }
         return keyboard;
     }
+
     public List<List<InlineKeyboardButton>> createInlKeyboard(List<ActionTranslate> actionTranslates) {
         List<List<InlineKeyboardButton>> rowsInline = new ArrayList<>();
         for (ActionTranslate text : actionTranslates) {

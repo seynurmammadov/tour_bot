@@ -95,6 +95,7 @@ public class InputMessageHandler implements MessageHandler {
         }
         return null;
     }
+
     public boolean isCalendarQuestion(Question currentQuestion) {
         ActionType actionType = currentQuestion.getActions().stream()
                 .findFirst()
@@ -127,6 +128,8 @@ public class InputMessageHandler implements MessageHandler {
             regexFreeText(question, message, action);
         } else if (action.getType() == ActionType.BUTTON) {
             regexButton(question, message);
+        } else if (action.getType() == ActionType.BUTTON_CONTACT_INFO) {
+            cachingDataNChangeState(question, message, action);
         } else if (action.getType() == ActionType.CALENDAR_ANSWER) {
             bot.execute(messageService.editCalendarMessage(
                     question,
@@ -188,9 +191,9 @@ public class InputMessageHandler implements MessageHandler {
             state.setState("language");
             dataCache.setQuestion(userId, state);
         }
-        if(filteredAnswer.getKeyword()!=null){
+        if (filteredAnswer.getKeyword() != null) {
             dataCache.addAnswer(userId, filteredAnswer.getKeyword());
-        }else {
+        } else {
             dataCache.addAnswer(userId, message.getText());
         }
         dataCache.setQuestion(userId, filteredAnswer.getNextQuestion());
@@ -222,7 +225,7 @@ public class InputMessageHandler implements MessageHandler {
                 .orElseThrow(RuntimeException::new)
                 .getType();
         sendOfferOrAnswers(question, userAnswer);
-        return messageService.getMessageByAction(question, langId, actionType,chatId);
+        return messageService.getMessageByAction(question, langId, actionType, chatId);
     }
 
 

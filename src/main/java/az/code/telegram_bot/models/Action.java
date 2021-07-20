@@ -33,6 +33,7 @@ public class Action implements Serializable {
     @JoinColumn(name = "next_id")
     Question nextQuestion;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "action", fetch = FetchType.EAGER)
+    @EqualsAndHashCode.Exclude
     Set<ActionTranslate> actionTranslates;
 }
 

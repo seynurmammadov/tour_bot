@@ -72,6 +72,10 @@ public class TelegramFacade {
         } else if (message.hasText()) {
             logUtil.logNewMessage(message);
             return inputMessageHandler.handle(message, bot, false);
+        }else if(message.hasContact()){
+            logUtil.logNewMessage(message,"contact info");
+            message.setText(message.getContact().getPhoneNumber());
+            return inputMessageHandler.handle(message, bot, false);
         }
         return null;
     }

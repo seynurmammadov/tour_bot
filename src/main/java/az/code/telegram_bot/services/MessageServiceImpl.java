@@ -178,21 +178,33 @@ public class MessageServiceImpl implements MessageService {
                 return msgWithInlKeyboard(chatId, question, langId);
             case CALENDAR:
                 return createCalendar(chatId, question, langId);
+            case BUTTON_CONTACT_INFO:
+                return createBtnContactInfo(chatId, question, langId);
             default:
                 return null;
         }
     }
-    private ReplyKeyboardMarkup createRepMarkup(Set<Action> actions, Long langId) {
+    private SendMessage createBtnContactInfo(String chatId, Question question, Long langId) {
+        return buttonsUtil.buttonMessage(
+                createRepMarkup(question.getActions(), langId,true),
+                chatId,
+                questionGenerator(question, langId)
+        );
+    }
+    private ReplyKeyboardMarkup createRepMarkup(Set<Action> actions, Long langId,boolean contact_info) {
         return ReplyKeyboardMarkup.builder()
                 .keyboard(
                         buttonsUtil.createRepKeyboard(
-                                translateUtil.getActionsTranslate(actions, langId)
+                                translateUtil.getActionsTranslate(actions, langId),contact_info
                         )
                 )
                 .resizeKeyboard(true)
                 .selective(true)
                 .oneTimeKeyboard(false)
                 .build();
+    }
+    private ReplyKeyboardMarkup createRepMarkup(Set<Action> actions, Long langId) {
+        return createRepMarkup(actions,langId,false);
     }
 
     private InlineKeyboardMarkup createInlMarkup(Set<Action> actions, Long langId) {
