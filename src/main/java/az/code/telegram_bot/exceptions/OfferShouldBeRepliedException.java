@@ -10,14 +10,17 @@ public class OfferShouldBeRepliedException extends Exception implements MyCustom
             " ya mövcud sorğunu dayandırmaq üçün /stop əmrindən istifadə edin!";
 
     @Override
-    public String getLocalizedMessage(Long langId) {
-        switch (langId.intValue()) {
-            case 1:
-                return ru;
-            case 2:
-                return az;
-            default:
-                return en;
-        }
+    public String getAz() {
+        return az;
+    }
+
+    @Override
+    public String getRu() {
+        return ru;
+    }
+
+    @Override
+    public String getEn() {
+        return en;
     }
 }

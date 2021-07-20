@@ -7,14 +7,17 @@ public class BeforeCurrentDateException extends Exception implements MyCustomExc
     String az = "Zəhmət olmasa bu gündən gec olmayaraq bir tarix seçin!";
 
     @Override
-    public String getLocalizedMessage(Long langId) {
-        switch (langId.intValue()) {
-            case 1:
-                return ru;
-            case 2:
-                return az;
-            default:
-                return en;
-        }
+    public String getAz() {
+        return az;
+    }
+
+    @Override
+    public String getRu() {
+        return ru;
+    }
+
+    @Override
+    public String getEn() {
+        return en;
     }
 }
