@@ -202,6 +202,7 @@ public class InputMessageHandler implements MessageHandler {
     /**
      * Method send collected user data to rabbit mq
      */
+    //TODO if stop before send dont sent request to stop queue
     private void sendCollectedData() throws TelegramApiException {
         template.convertAndSend(RabbitMQConfig.exchange,
                 RabbitMQConfig.sent,

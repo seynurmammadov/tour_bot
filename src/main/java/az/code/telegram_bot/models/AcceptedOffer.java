@@ -9,9 +9,9 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AcceptedOffer  implements Serializable {
+public class AcceptedOffer implements Serializable {
     String UUID;
-    String agencyName;
+    String username;
     String phoneNumber;
     String userName;
     String firstName;

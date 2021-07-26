@@ -14,7 +14,7 @@ public class AgencyOffer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
-    String agencyName;
+    String username;
     String UUID;
     Integer messageId;
     @Transient

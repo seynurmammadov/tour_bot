@@ -11,7 +11,6 @@ import az.code.telegram_bot.repositories.RedisRepository;
 import az.code.telegram_bot.services.Interfaces.AgencyOfferService;
 import az.code.telegram_bot.services.Interfaces.MessageService;
 import az.code.telegram_bot.services.Interfaces.QuestionService;
-import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -72,7 +71,7 @@ public class ReplyMessageHandler implements MessageHandler {
                 questionService.getByKeyword(StaticStates.REPLY_START.toString()));
         acceptedOfferRepository.save(userId,
                 AcceptedOffer.builder()
-                        .agencyName(offer.getAgencyName())
+                        .username(offer.getUsername())
                         .firstName(message.getFrom().getFirstName())
                         .lastName(message.getFrom().getLastName())
                         .userName(message.getFrom().getUserName())

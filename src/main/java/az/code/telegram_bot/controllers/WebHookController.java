@@ -18,26 +18,9 @@ import java.io.IOException;
 @Slf4j
 public class WebHookController {
     private final TelegramWebHook telegramBot;
-    private final RabbitTemplate template;
 
-    public WebHookController(TelegramWebHook telegramBot, RabbitTemplate template) {
+    public WebHookController(TelegramWebHook telegramBot) {
         this.telegramBot = telegramBot;
-        this.template = template;
-    }
-
-
-    @RequestMapping(value = "send/message/{UUID}", method = RequestMethod.POST)
-    public ResponseEntity<Void> receivedFromAgent(@RequestParam("file") MultipartFile file,
-                                                  @PathVariable("UUID") String UUID) throws IOException {
-        template.convertAndSend(
-                RabbitMQConfig.exchange,
-                RabbitMQConfig.offered,
-                AgencyOffer.builder()
-                        .UUID(UUID)
-                        .file(file.getBytes())
-                        .agencyName("agency name")
-                        .build());
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @RequestMapping(value = "callback/webhook", method = RequestMethod.POST)
