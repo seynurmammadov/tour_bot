@@ -1,17 +1,24 @@
 package az.code.telegram_bot.services;
 
 import az.code.telegram_bot.TelegramWebHook;
+import az.code.telegram_bot.botApi.handlers.interfaces.MessageHandler;
 import az.code.telegram_bot.cache.DataCache;
+import az.code.telegram_bot.exceptions.NoOffersElseException;
+import az.code.telegram_bot.exceptions.RequestWasStoppedException;
 import az.code.telegram_bot.models.AgencyOffer;
 import az.code.telegram_bot.models.Question;
 import az.code.telegram_bot.models.BotSession;
 import az.code.telegram_bot.models.enums.QueryType;
 import az.code.telegram_bot.services.Interfaces.*;
 import az.code.telegram_bot.utils.FileUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.*;
@@ -29,7 +36,6 @@ public class ListenerServiceImpl implements ListenerService {
     final
     AgencyOfferService offerService;
 
-
     final
     QuestionService questionService;
 
@@ -42,17 +48,23 @@ public class ListenerServiceImpl implements ListenerService {
     @Value("${offer.sentCount}")
     String maxSentOfferCount;
 
+    final
+    MessageHandler commandHandler;
+
     private TelegramWebHook bot;
+
 
     public ListenerServiceImpl(MessageService messageService, BotSessionService sessionService,
                                AgencyOfferImpl offerService, QuestionService questionService,
-                               DataCache dataCache, FileUtil fileUtil) {
+                               DataCache dataCache, FileUtil fileUtil,
+                               @Qualifier("commandHandler") MessageHandler commandHandler) {
         this.messageService = messageService;
         this.sessionService = sessionService;
         this.offerService = offerService;
         this.questionService = questionService;
         this.dataCache = dataCache;
         this.fileUtil = fileUtil;
+        this.commandHandler = commandHandler;
     }
 
     @Override
@@ -63,6 +75,44 @@ public class ListenerServiceImpl implements ListenerService {
             botSession.get().setCountOfOffers(botSession.get().getCountOfOffers() + 1);
             sendActions(offer, botSession.get(), fileUtil.byteArrToInputFile(offer.getFile()));
         }
+    }
+
+    @Override
+    public void sendExpiredNotification(String UUID, TelegramWebHook bot) throws TelegramApiException, IOException {
+        Optional<BotSession> botSession = sessionService.getByUUID(UUID);
+        if (botSession.isPresent()) {
+            setData(bot);
+            long landId = dataCache.getUserData(botSession.get().getClient_id()).getLangId();
+            String chatId =botSession.get().getChatId();
+            if (botSession.get().getCountOfOffers() > 0) {
+                bot.execute(
+                        messageService.createNotify(
+                                chatId,
+                                new NoOffersElseException(),
+                                landId)
+                );
+            } else {
+                bot.execute(
+                        messageService.createNotify(
+                                chatId,
+                                new RequestWasStoppedException(),
+                                landId)
+                );
+                commandHandler.handle(getMessage(botSession.get(), chatId),bot,true);
+            }
+        }
+    }
+
+    private Message getMessage(BotSession botSession, String chatId) {
+        Message message = new Message();
+        User user = new User();
+        user.setId(botSession.getClient_id());
+        Chat chat = new Chat();
+        chat.setId(Long.valueOf(chatId));
+        message.setText("/stop");
+        message.setFrom(user);
+        message.setChat(chat);
+        return message;
     }
 
 

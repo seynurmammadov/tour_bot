@@ -8,5 +8,6 @@ import java.io.IOException;
 
 public interface ListenerService {
     void sendPhoto(AgencyOffer agencyOffer, TelegramWebHook bot) throws IOException, TelegramApiException;
+    void sendExpiredNotification(String UUID, TelegramWebHook bot) throws TelegramApiException, IOException;
     void sendNextPhotos(Long userId, TelegramWebHook bot) throws TelegramApiException, IOException;
 }

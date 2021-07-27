@@ -48,4 +48,8 @@ public class TelegramWebHook extends TelegramWebhookBot {
     public void sendPhoto(AgencyOffer agencyOffer) throws IOException, TelegramApiException {
         telegramFacade.sendPhoto(agencyOffer, this);
     }
+    @RabbitListener(queues = RabbitMQConfig.expired)
+    public void sendExpiredNotification(String UUID) throws TelegramApiException, IOException {
+        telegramFacade.sendExpiredNotification(UUID, this);
+    }
 }

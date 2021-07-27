@@ -9,8 +9,6 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
-
 
 @Setter
 @Getter
@@ -21,30 +19,41 @@ public class RabbitMQConfig {
     public final static String sent = "sent";
     public final static String accepted = "accepted";
     public final static String exchange = "exchange";
+    public final static String expired = "expired";
 
     @Bean
     public Queue queueCancelled() {
-        return new Queue(cancelled,true);
+        return new Queue(cancelled, true);
     }
 
     @Bean
     public Queue queueOffered() {
-        return new Queue(offered,true);
+        return new Queue(offered, true);
     }
 
     @Bean
     public Queue queueSent() {
-        return new Queue(sent,true);
+        return new Queue(sent, true);
+    }
+
+    @Bean
+    public Queue queueExpired() {
+        return new Queue(expired, true);
     }
 
     @Bean
     public Queue queueAccepted() {
-        return new Queue(accepted,true);
+        return new Queue(accepted, true);
     }
 
     @Bean
-   public TopicExchange exchange() {
-     return new TopicExchange(exchange);
+    public TopicExchange exchange() {
+        return new TopicExchange(exchange);
+    }
+
+    @Bean
+    public Binding bindingExpired(TopicExchange exchange) {
+        return BindingBuilder.bind(queueExpired()).to(exchange).with(queueExpired().getName());
     }
 
     @Bean
@@ -66,6 +75,7 @@ public class RabbitMQConfig {
     public Binding bindingAccepted(TopicExchange exchange) {
         return BindingBuilder.bind(queueAccepted()).to(exchange).with(queueAccepted().getName());
     }
+
     @Bean
     public MessageConverter converter() {
         return new Jackson2JsonMessageConverter();

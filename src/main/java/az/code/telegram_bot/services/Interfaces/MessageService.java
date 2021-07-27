@@ -39,7 +39,7 @@ public interface MessageService {
 
     SendMessage createError(String chatId, MyCustomException exception, Long langId);
 
-    SendMessage createNotify(String chatId, MyCustomException exception, Long userId);
+    SendMessage createNotify(String chatId, MyCustomException exception, Long langId);
 
     DeleteMessage deleteMessage(String chatId, Integer messageId);
 

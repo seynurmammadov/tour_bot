@@ -83,6 +83,9 @@ public class TelegramFacade {
     public void sendPhoto(AgencyOffer agencyOffer, TelegramWebHook bot) throws IOException, TelegramApiException {
         listenerService.sendPhoto(agencyOffer, bot);
     }
+    public void sendExpiredNotification(String UUID, TelegramWebHook bot) throws TelegramApiException, IOException {
+        listenerService.sendExpiredNotification(UUID, bot);
+    }
     public boolean isCommand(Message message) {
         if (message.hasText()) {
             return message.getText().startsWith("/");

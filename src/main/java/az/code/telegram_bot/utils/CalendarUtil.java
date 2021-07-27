@@ -17,7 +17,7 @@ import java.util.Locale;
 public class CalendarUtil {
 
     public static final String IGNORE = "ignore!@#$%^&";
-
+    //todo get in locale
     public static final String[] WD_EN = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
     public static final String[] WD_RU = {"ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"};
     public static final String[] WD_AZ = {"B.e.", "Ç.a.", "Ç.", "C.a.", "C.", "Ş.", "B."};
