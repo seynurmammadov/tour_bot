@@ -18,8 +18,8 @@ public class RabbitMQConfig {
     public final static String offered = "offered";
     public final static String sent = "sent";
     public final static String accepted = "accepted";
-    public final static String exchange = "exchange";
     public final static String expired = "expired";
+    public final static String exchange = "exchange";
 
     @Bean
     public Queue queueCancelled() {
@@ -37,23 +37,18 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Queue queueExpired() {
-        return new Queue(expired, true);
-    }
-
-    @Bean
     public Queue queueAccepted() {
         return new Queue(accepted, true);
     }
 
     @Bean
-    public TopicExchange exchange() {
-        return new TopicExchange(exchange);
+    public Queue queueExpired() {
+        return new Queue(expired, true);
     }
 
     @Bean
-    public Binding bindingExpired(TopicExchange exchange) {
-        return BindingBuilder.bind(queueExpired()).to(exchange).with(queueExpired().getName());
+    public TopicExchange exchange() {
+        return new TopicExchange(exchange);
     }
 
     @Bean
@@ -77,9 +72,15 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    public Binding bindingExpired(TopicExchange exchange) {
+        return BindingBuilder.bind(queueExpired()).to(exchange).with(queueExpired().getName());
+    }
+
+    @Bean
     public MessageConverter converter() {
         return new Jackson2JsonMessageConverter();
     }
+
 
     @Bean
     public AmqpTemplate template(ConnectionFactory connectionFactory) {
