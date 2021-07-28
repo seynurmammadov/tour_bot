@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.IOException;
+import java.util.List;
 
 
 @Component
@@ -36,7 +37,9 @@ public class WaitingAnswerScheduler {
 
     @Scheduled(cron = "${cron.waitingAnswerScheduler}", zone = "Asia/Baku")
     public void waitingAnswerScheduler() throws TelegramApiException, IOException {
-        for (BotSession session:sessionRepository.getNotAnsweredSessions()) {
+        List<BotSession> sessions =sessionRepository.getNotAnsweredSessions();
+        log.info("waitingAnswer Scheduler started working. Sessions count :"+sessions.size() );
+        for (BotSession session:sessions) {
             commandHandler.handle(fakerUtil.fakeStop(session, session.getChatId()), telegramWebHook, true);
         }
     }
