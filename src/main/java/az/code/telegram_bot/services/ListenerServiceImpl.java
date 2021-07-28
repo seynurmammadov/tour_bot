@@ -11,14 +11,13 @@ import az.code.telegram_bot.models.BotSession;
 import az.code.telegram_bot.models.enums.QueryType;
 import az.code.telegram_bot.services.Interfaces.*;
 import az.code.telegram_bot.utils.FileUtil;
+import az.code.telegram_bot.utils.MessageFakerUtil;
 import az.code.telegram_bot.utils.TimeUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.*;
@@ -30,27 +29,22 @@ import java.util.Optional;
 public class ListenerServiceImpl implements ListenerService {
     final
     MessageService messageService;
-
     final
     BotSessionService sessionService;
-
     final
     AgencyOfferService offerService;
-
     final
     QuestionService questionService;
-
     final
     FileUtil fileUtil;
-
     final
     DataCache dataCache;
-
     @Value("${offer.sentCount}")
     String maxSentOfferCount;
     final
     TimeUtil timeUtil;
-
+    final
+    MessageFakerUtil fakerUtil;
     final
     MessageHandler commandHandler;
 
@@ -60,7 +54,7 @@ public class ListenerServiceImpl implements ListenerService {
     public ListenerServiceImpl(MessageService messageService, BotSessionService sessionService,
                                AgencyOfferImpl offerService, QuestionService questionService,
                                DataCache dataCache, FileUtil fileUtil,
-                               @Qualifier("commandHandler") MessageHandler commandHandler, TimeUtil timeUtil) {
+                               @Qualifier("commandHandler") MessageHandler commandHandler, TimeUtil timeUtil, MessageFakerUtil fakerUtil) {
         this.messageService = messageService;
         this.sessionService = sessionService;
         this.offerService = offerService;
@@ -69,6 +63,7 @@ public class ListenerServiceImpl implements ListenerService {
         this.fileUtil = fileUtil;
         this.commandHandler = commandHandler;
         this.timeUtil = timeUtil;
+        this.fakerUtil = fakerUtil;
     }
 
     @Override
@@ -103,7 +98,7 @@ public class ListenerServiceImpl implements ListenerService {
                         new RequestWasStoppedException(),
                         landId)
         );
-        commandHandler.handle(getMessage(botSession, chatId), bot, true);
+        commandHandler.handle(fakerUtil.fakeStop(botSession, chatId), bot, true);
     }
 
     private void changeSessionStatus(TelegramWebHook bot, BotSession botSession, long landId, String chatId) throws TelegramApiException {
@@ -118,17 +113,7 @@ public class ListenerServiceImpl implements ListenerService {
         sessionService.save(botSession);
     }
 
-    private Message getMessage(BotSession botSession, String chatId) {
-        Message message = new Message();
-        User user = new User();
-        user.setId(botSession.getClient_id());
-        Chat chat = new Chat();
-        chat.setId(Long.valueOf(chatId));
-        message.setText("/stop");
-        message.setFrom(user);
-        message.setChat(chat);
-        return message;
-    }
+
 
 
     private void sendActions(AgencyOffer offer, BotSession botSession, InputFile inputFile) throws TelegramApiException, IOException {
