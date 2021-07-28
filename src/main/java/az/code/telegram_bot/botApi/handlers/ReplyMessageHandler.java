@@ -6,9 +6,11 @@ import az.code.telegram_bot.cache.DataCache;
 import az.code.telegram_bot.exceptions.OfferShouldBeRepliedException;
 import az.code.telegram_bot.models.AcceptedOffer;
 import az.code.telegram_bot.models.AgencyOffer;
+import az.code.telegram_bot.models.BotSession;
 import az.code.telegram_bot.models.enums.StaticStates;
 import az.code.telegram_bot.repositories.RedisRepository;
 import az.code.telegram_bot.services.Interfaces.AgencyOfferService;
+import az.code.telegram_bot.services.Interfaces.BotSessionService;
 import az.code.telegram_bot.services.Interfaces.MessageService;
 import az.code.telegram_bot.services.Interfaces.QuestionService;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -38,17 +40,20 @@ public class ReplyMessageHandler implements MessageHandler {
     MessageHandler inputMessageHandler;
     final
     RedisRepository<AcceptedOffer> acceptedOfferRepository;
+    final
+    BotSessionService sessionService;
 
     public ReplyMessageHandler(AgencyOfferService offerService, DataCache dataCache,
                                MessageService messageService, QuestionService questionService,
                                @Qualifier("inputMessageHandler") MessageHandler inputMessageHandler
-            , RedisRepository<AcceptedOffer> acceptedOfferRepository) {
+            , RedisRepository<AcceptedOffer> acceptedOfferRepository, BotSessionService sessionService) {
         this.offerService = offerService;
         this.dataCache = dataCache;
         this.messageService = messageService;
         this.questionService = questionService;
         this.inputMessageHandler = inputMessageHandler;
         this.acceptedOfferRepository = acceptedOfferRepository;
+        this.sessionService = sessionService;
     }
 
 
@@ -58,7 +63,7 @@ public class ReplyMessageHandler implements MessageHandler {
         String UUID = dataCache.getUserData(userId).getUUID();
         Optional<AgencyOffer> offer = offerService.getByMessageIdAndUUID(this.replyId, UUID);
         if (offer.isPresent()) {
-            return setContactQuestion(message, bot, offer.get());
+            return waitingStatusNQuestion(message, UUID, offer.get());
         } else {
             return messageService.createError(chatId,
                     new OfferShouldBeRepliedException(),
@@ -66,7 +71,17 @@ public class ReplyMessageHandler implements MessageHandler {
         }
     }
 
-    private SendMessage setContactQuestion(Message message, TelegramWebHook bot, AgencyOffer offer) throws TelegramApiException, IOException {
+    private SendMessage waitingStatusNQuestion(Message message, String UUID,AgencyOffer offer) throws TelegramApiException, IOException {
+        Optional<BotSession> botSession = sessionService.getByUUID(UUID);
+        if (botSession.isPresent()) {
+            botSession.get().setWaitingAnswer(false);
+            sessionService.save(botSession.get());
+            return setContactQuestion(message,offer);
+        }
+        return null;
+    }
+
+    private SendMessage setContactQuestion(Message message, AgencyOffer offer) throws TelegramApiException, IOException {
         dataCache.setQuestion(userId,
                 questionService.getByKeyword(StaticStates.REPLY_START.toString()));
         acceptedOfferRepository.save(userId,

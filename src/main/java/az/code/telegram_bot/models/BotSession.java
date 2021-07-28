@@ -26,4 +26,6 @@ public class BotSession {
     Integer nextMessageId;
     boolean status;
     LocalDateTime createdAt;
+    boolean waitingAnswer;
+    LocalDateTime expiredAt;
 }

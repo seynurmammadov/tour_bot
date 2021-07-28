@@ -22,6 +22,7 @@ public class BotSessionServiceImpl implements BotSessionService {
     public void create(Long userId, String chatId, String randUUID) {
         sessionRepository.save(BotSession.builder()
                 .status(true)
+                .waitingAnswer(false)
                 .countOfOffers(0)
                 .countOfSent(0)
                 .createdAt(LocalDateTime.now())

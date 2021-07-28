@@ -26,3 +26,5 @@ offer:
   image:
     path: "images/"
     extension: ".jpg"
+cron:
+  waitingAnswerScheduler: "0 * 00-23 * * ?"

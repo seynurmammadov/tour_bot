@@ -11,7 +11,7 @@ import az.code.telegram_bot.models.BotSession;
 import az.code.telegram_bot.models.enums.QueryType;
 import az.code.telegram_bot.services.Interfaces.*;
 import az.code.telegram_bot.utils.FileUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import az.code.telegram_bot.utils.TimeUtil;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -22,6 +22,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.*;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,6 +48,8 @@ public class ListenerServiceImpl implements ListenerService {
 
     @Value("${offer.sentCount}")
     String maxSentOfferCount;
+    final
+    TimeUtil timeUtil;
 
     final
     MessageHandler commandHandler;
@@ -57,7 +60,7 @@ public class ListenerServiceImpl implements ListenerService {
     public ListenerServiceImpl(MessageService messageService, BotSessionService sessionService,
                                AgencyOfferImpl offerService, QuestionService questionService,
                                DataCache dataCache, FileUtil fileUtil,
-                               @Qualifier("commandHandler") MessageHandler commandHandler) {
+                               @Qualifier("commandHandler") MessageHandler commandHandler, TimeUtil timeUtil) {
         this.messageService = messageService;
         this.sessionService = sessionService;
         this.offerService = offerService;
@@ -65,6 +68,7 @@ public class ListenerServiceImpl implements ListenerService {
         this.dataCache = dataCache;
         this.fileUtil = fileUtil;
         this.commandHandler = commandHandler;
+        this.timeUtil = timeUtil;
     }
 
     @Override
@@ -83,24 +87,35 @@ public class ListenerServiceImpl implements ListenerService {
         if (botSession.isPresent()) {
             setData(bot);
             long landId = dataCache.getUserData(botSession.get().getClient_id()).getLangId();
-            String chatId =botSession.get().getChatId();
+            String chatId = botSession.get().getChatId();
             if (botSession.get().getCountOfOffers() > 0) {
-                bot.execute(
-                        messageService.createNotify(
-                                chatId,
-                                new NoOffersElseException(),
-                                landId)
-                );
+                changeSessionStatus(bot, botSession.get(), landId, chatId);
             } else {
-                bot.execute(
-                        messageService.createNotify(
-                                chatId,
-                                new RequestWasStoppedException(),
-                                landId)
-                );
-                commandHandler.handle(getMessage(botSession.get(), chatId),bot,true);
+                stopRequest(botSession.get(), landId, chatId);
             }
         }
+    }
+
+    private void stopRequest(BotSession botSession, long landId, String chatId) throws TelegramApiException, IOException {
+        bot.execute(
+                messageService.createNotify(
+                        chatId,
+                        new RequestWasStoppedException(),
+                        landId)
+        );
+        commandHandler.handle(getMessage(botSession, chatId), bot, true);
+    }
+
+    private void changeSessionStatus(TelegramWebHook bot, BotSession botSession, long landId, String chatId) throws TelegramApiException {
+        bot.execute(
+                messageService.createNotify(
+                        chatId,
+                        new NoOffersElseException(),
+                        landId)
+        );
+        botSession.setWaitingAnswer(true);
+        botSession.setExpiredAt(timeUtil.addLimit(LocalDateTime.now()));
+        sessionService.save(botSession);
     }
 
     private Message getMessage(BotSession botSession, String chatId) {
@@ -192,4 +207,6 @@ public class ListenerServiceImpl implements ListenerService {
     private void setData(TelegramWebHook bot) {
         this.bot = bot;
     }
+
+
 }
