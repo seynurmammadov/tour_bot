@@ -113,9 +113,6 @@ public class ListenerServiceImpl implements ListenerService {
         sessionService.save(botSession);
     }
 
-
-
-
     private void sendActions(AgencyOffer offer, BotSession botSession, InputFile inputFile) throws TelegramApiException, IOException {
         int offersCount = botSession.getCountOfOffers();
         if (!botSession.isLock()) {

@@ -19,8 +19,6 @@ import java.util.Locale;
 public class CalendarUtil {
 
     public static final String IGNORE = "ignore!@#$%^&";
-    //todo get in locale
-
     @Setter
     @Getter
     public long langId;

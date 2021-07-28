@@ -14,6 +14,9 @@ public class TimeUtil {
     @Value("${offer.responseLimit.days}")
     String days;
     public LocalDateTime addLimit(LocalDateTime time) {
-        return time.plusDays(Long.parseLong(days)).plusHours(Long.parseLong(hours)).plusMinutes(Long.parseLong(minutes));
+        return time
+                .plusDays(Long.parseLong(days))
+                .plusHours(Long.parseLong(hours))
+                .plusMinutes(Long.parseLong(minutes));
     }
 }

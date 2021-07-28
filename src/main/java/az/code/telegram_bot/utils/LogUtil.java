@@ -25,7 +25,8 @@ public class LogUtil {
     public void logCallBackQuery(Update update, CallbackQuery callbackQuery) {
         log.info("New callbackQuery from User: {}, userId: {}, with data: {}",
                 update.getCallbackQuery().getFrom().getUserName(),
-                callbackQuery.getFrom().getId(), update.getCallbackQuery().getData());
+                callbackQuery.getFrom().getId(),
+                update.getCallbackQuery().getData());
     }
 
 }

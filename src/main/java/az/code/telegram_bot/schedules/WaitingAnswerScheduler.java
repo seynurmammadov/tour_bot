@@ -28,7 +28,9 @@ public class WaitingAnswerScheduler {
     TelegramWebHook telegramWebHook;
 
     public WaitingAnswerScheduler(BotSessionRepository sessionRepository,
-                                  @Qualifier("commandHandler") MessageHandler commandHandler, MessageFakerUtil fakerUtil, TelegramWebHook telegramWebHook) {
+                                  @Qualifier("commandHandler") MessageHandler commandHandler,
+                                  MessageFakerUtil fakerUtil,
+                                  TelegramWebHook telegramWebHook) {
         this.sessionRepository = sessionRepository;
         this.commandHandler = commandHandler;
         this.fakerUtil = fakerUtil;
@@ -40,7 +42,13 @@ public class WaitingAnswerScheduler {
         List<BotSession> sessions = sessionRepository.getNotAnsweredSessions();
         log.info("waitingAnswer Scheduler started working. Sessions count :" + sessions.size());
         for (BotSession session : sessions) {
-            telegramWebHook.execute(commandHandler.handle(fakerUtil.fakeStop(session, session.getChatId()), telegramWebHook, true));
+            telegramWebHook.execute(
+                    commandHandler.handle(
+                            fakerUtil.fakeStop(session, session.getChatId()),
+                            telegramWebHook,
+                            true
+                    )
+            );
         }
     }
 
