@@ -16,7 +16,7 @@ offer:
   sentCount: "5"
   responseLimit:
     days: "0"
-    hours: "5"
+    hours: "0"
     minutes: "5"
   image:
     path: "images/"
