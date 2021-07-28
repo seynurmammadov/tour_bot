@@ -140,6 +140,8 @@ public class CalendarUtil {
             wd.add(day.getDisplayName(TextStyle.SHORT, loc));
             day = day.plus(1);
         }
+        wd.remove(0);
+        wd.add(wf.getFirstDayOfWeek().getDisplayName(TextStyle.SHORT, loc));
         return wd;
     }
 }
