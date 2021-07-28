@@ -37,10 +37,10 @@ public class WaitingAnswerScheduler {
 
     @Scheduled(cron = "${cron.waitingAnswerScheduler}", zone = "Asia/Baku")
     public void waitingAnswerScheduler() throws TelegramApiException, IOException {
-        List<BotSession> sessions =sessionRepository.getNotAnsweredSessions();
-        log.info("waitingAnswer Scheduler started working. Sessions count :"+sessions.size() );
-        for (BotSession session:sessions) {
-            commandHandler.handle(fakerUtil.fakeStop(session, session.getChatId()), telegramWebHook, true);
+        List<BotSession> sessions = sessionRepository.getNotAnsweredSessions();
+        log.info("waitingAnswer Scheduler started working. Sessions count :" + sessions.size());
+        for (BotSession session : sessions) {
+            telegramWebHook.execute(commandHandler.handle(fakerUtil.fakeStop(session, session.getChatId()), telegramWebHook, true));
         }
     }
 
