@@ -8,8 +8,10 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
+import java.time.DayOfWeek;
+import java.time.format.TextStyle;
+import java.time.temporal.WeekFields;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
@@ -18,9 +20,6 @@ public class CalendarUtil {
 
     public static final String IGNORE = "ignore!@#$%^&";
     //todo get in locale
-    public static final String[] WD_EN = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
-    public static final String[] WD_RU = {"ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"};
-    public static final String[] WD_AZ = {"B.e.", "Ç.a.", "Ç.", "C.a.", "C.", "Ş.", "B."};
 
     @Setter
     @Getter
@@ -75,13 +74,13 @@ public class CalendarUtil {
         List<String> WD = new ArrayList<>();
         switch ((int) this.langId) {
             case 1:
-                WD.addAll(Arrays.asList(WD_RU));
+                WD.addAll(getWeekdays(new Locale("ru")));
                 break;
             case 2:
-                WD.addAll(Arrays.asList(WD_AZ));
+                WD.addAll(getWeekdays(new Locale("az")));
                 break;
             default:
-                WD.addAll(Arrays.asList(WD_EN));
+                WD.addAll(getWeekdays(new Locale("en")));
         }
         return getWDButtons(WD);
     }
@@ -131,5 +130,16 @@ public class CalendarUtil {
             }
         }
         return row;
+    }
+
+    public List<String> getWeekdays(Locale loc) {
+        WeekFields wf = WeekFields.of(loc);
+        DayOfWeek day = wf.getFirstDayOfWeek();
+        List<String> wd = new ArrayList<>();
+        for (int i = 0; i < DayOfWeek.values().length; i++) {
+            wd.add(day.getDisplayName(TextStyle.SHORT, loc));
+            day = day.plus(1);
+        }
+        return wd;
     }
 }

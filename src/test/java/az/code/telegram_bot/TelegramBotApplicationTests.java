@@ -101,7 +101,7 @@ class TelegramBotApplicationTests {
     void getWDButtons() {
         calendarUtil.langId = 2;
         List<InlineKeyboardButton> daysOfWeekRow = new ArrayList<>();
-        for (String day : CalendarUtil.WD_AZ) {
+        for (String day : calendarUtil.getWeekdays(new Locale("az"))) {
             daysOfWeekRow.add(InlineKeyboardButton.builder()
                     .callbackData(CalendarUtil.IGNORE).text(day).build());
         }
