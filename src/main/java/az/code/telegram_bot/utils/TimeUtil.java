@@ -4,16 +4,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Component
 public class TimeUtil {
-    @Value("${offer.responseLimit}")
-    String responseLimit;
-
+    @Value("${offer.responseLimit.hours}")
+    String hours;
+    @Value("${offer.responseLimit.minutes}")
+    String minutes;
+    @Value("${offer.responseLimit.days}")
+    String days;
     public LocalDateTime addLimit(LocalDateTime time) {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd:HH:mm");
-        LocalDateTime limit = LocalDateTime.parse(responseLimit, dtf);
-        return time.plusDays(limit.getDayOfMonth()).plusHours(limit.getHour()).plusMinutes(limit.getMinute());
+        return time.plusDays(Long.parseLong(days)).plusHours(Long.parseLong(hours)).plusMinutes(Long.parseLong(minutes));
     }
 }

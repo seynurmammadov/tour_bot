@@ -14,7 +14,10 @@ telegrambot:
 
 offer:
   sentCount: "5"
-  responseLimit: "05:09:00"
+  responseLimit:
+    days: "0"
+    hours: "5"
+    minutes: "5"
   image:
     path: "images/"
     extension: ".jpg"
