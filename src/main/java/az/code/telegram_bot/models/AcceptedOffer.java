@@ -11,9 +11,9 @@ import java.io.Serializable;
 @Builder
 public class AcceptedOffer implements Serializable {
     String UUID;
-    String username;
+    String agentUsername;
     String phoneNumber;
-    String userName;
+    String username;
     String firstName;
     String lastName;
     Long userId;

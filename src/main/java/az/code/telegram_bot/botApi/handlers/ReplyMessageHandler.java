@@ -86,10 +86,10 @@ public class ReplyMessageHandler implements MessageHandler {
                 questionService.getByKeyword(StaticStates.REPLY_START.toString()));
         acceptedOfferRepository.save(userId,
                 AcceptedOffer.builder()
-                        .username(offer.getUsername())
+                        .agentUsername(offer.getUsername())
                         .firstName(message.getFrom().getFirstName())
                         .lastName(message.getFrom().getLastName())
-                        .userName(message.getFrom().getUserName())
+                        .username(message.getFrom().getUserName())
                         .UUID(offer.getUUID())
                         .userId(this.userId)
                         .build());
