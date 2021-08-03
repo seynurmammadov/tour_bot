@@ -89,6 +89,8 @@ public class ReplyMessageHandler implements MessageHandler {
             dataCache.setQuestion(userId,
                     questionService.getByKeyword(StaticStates.REPLY_END.toString()));
             message.setText(acceptedOffer.getPhoneNumber());
+            acceptedOffer.setAgentUsername(offer.getUsername());
+            acceptedOfferRepository.save(userId,acceptedOffer);
             return inputMessageHandler.handle(message, bot, true);
         }
     }
