@@ -104,15 +104,10 @@ public class InputMessageHandler implements MessageHandler {
         return actionType == ActionType.CALENDAR;
     }
 
-    private void acceptOffer(String phoneNumber) throws IOException {
-        template.convertAndSend(RabbitMQConfig.exchange,
-                RabbitMQConfig.cancelled,
-                dataCache.getUserData(userId).getUUID());
+    private void acceptOffer(String phoneNumber) {
         AcceptedOffer offer = acceptedOfferRepository.findById(userId);
         offer.setPhoneNumber(phoneNumber);
         template.convertAndSend(RabbitMQConfig.exchange, RabbitMQConfig.accepted, offer);
-        dataCache.clearDataAndState(userId);
-        sessionService.deactivate(userId);
     }
 
     /**
@@ -202,12 +197,10 @@ public class InputMessageHandler implements MessageHandler {
     /**
      * Method send collected user data to rabbit mq
      */
-    //TODO if stop before send dont sent request to stop queue
-    private void sendCollectedData() throws TelegramApiException {
+    private void sendCollectedData()  {
         template.convertAndSend(RabbitMQConfig.exchange,
                 RabbitMQConfig.sent,
                 dataCache.getUserData(userId));
-        bot.execute(messageService.createMsgWithData(chatId, userId, dataCache.getUserData(userId).toString()));
         dataCache.setQuestion(userId, Question.builder().state(StaticStates.END.toString()).build());
         dataCache.clearData(userId);
     }

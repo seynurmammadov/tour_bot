@@ -150,7 +150,7 @@ class TelegramBotApplicationTests {
         List<KeyboardRow> keyboard = new ArrayList<>();
         for (ActionTranslate text : getActionTranslates()) {
             KeyboardRow row = new KeyboardRow();
-            row.add(new KeyboardButton(text.getContext()));
+            row.add(KeyboardButton.builder().text(text.getContext()).requestContact(false).build());
             keyboard.add(row);
         }
         assertEquals(keyboard, buttonsUtil.createRepKeyboard(new ArrayList<>(getActionTranslates())));
