@@ -2,12 +2,9 @@ package az.code.telegram_bot.exceptions;
 
 public class OfferShouldBeRepliedException extends Exception implements MyCustomException {
 
-    String ru = "Пожалуйста,прежде чем продолжить ответьте на какое-то из отправленный предложений которым вы еще не ответили, если таковы имеются, " +
-            " или воспользуйтесь командой /stop чтобы остановить текущий запрос!";
-    String en ="Please, before proceeding, answer any of the submitted proposals that you have not yet replied to, if any," +
-            " use the /stop command to stop the current request!";
-    String az =   "Zəhmət olmasa, davam etməzdən əvvəl, hələ cavablandırmadığınız təqdim olunan təkliflərin birinə cavab verin və" +
-            " ya mövcud sorğunu dayandırmaq üçün /stop əmrindən istifadə edin!";
+    String ru = "Вы можете ответить только на предложения от агентств, которым вы еще не ответили,если таковы имеются!";
+    String en ="You can only respond to offers from agencies you have not yet replied to, if any!";
+    String az = "Yalnız cavab vermədiyiniz agentliklərin təkliflərinə cavab verə bilərsiniz, əgər beləsi varsa!";
 
     @Override
     public String getAz() {
