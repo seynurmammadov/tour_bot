@@ -20,4 +20,5 @@ public class AgencyOffer {
     @Transient
     byte[] file;
     String filePath;
+    Boolean isAccepted;
 }
