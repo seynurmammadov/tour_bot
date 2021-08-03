@@ -29,6 +29,12 @@ redis:
 
 offer:
   sentCount: "5"
+  responseLimit:
+    days: "0"
+    hours: "0"
+    minutes: "5"
   image:
     path: "images/"
     extension: ".jpg"
+cron:
+  waitingAnswerScheduler: "0 * 00-23 * * ?"

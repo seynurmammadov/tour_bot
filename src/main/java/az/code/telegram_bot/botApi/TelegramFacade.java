@@ -63,7 +63,11 @@ public class TelegramFacade {
     }
 
     private SendMessage inlineMessage(TelegramWebHook bot, Message message) throws TelegramApiException, IOException {
-        if (message.getReplyToMessage() != null) {
+        if(message.hasContact()){
+            logUtil.logNewMessage(message,"contact info");
+            message.setText(message.getContact().getPhoneNumber());
+            return inputMessageHandler.handle(message, bot, false);
+        }else  if (message.getReplyToMessage() != null) {
             logUtil.logNewMessage(message, "reply");
             return replyHandler.handle(message, bot, true);
         } else if (isCommand(message)) {
@@ -71,10 +75,6 @@ public class TelegramFacade {
             return commandHandler.handle(message, bot, true);
         } else if (message.hasText()) {
             logUtil.logNewMessage(message);
-            return inputMessageHandler.handle(message, bot, false);
-        }else if(message.hasContact()){
-            logUtil.logNewMessage(message,"contact info");
-            message.setText(message.getContact().getPhoneNumber());
             return inputMessageHandler.handle(message, bot, false);
         }
         return null;
