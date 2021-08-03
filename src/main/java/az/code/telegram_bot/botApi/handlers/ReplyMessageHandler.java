@@ -76,14 +76,21 @@ public class ReplyMessageHandler implements MessageHandler {
         if (botSession.isPresent()) {
             botSession.get().setWaitingAnswer(false);
             sessionService.save(botSession.get());
-            if(acceptedOfferRepository.findById(userId)==null){
-                return setContactQuestion(message,offer);
-            }else {
-                dataCache.setQuestion(userId,
-                        questionService.getByKeyword(StaticStates.REPLY_END.toString()));
-            }
+            return checkContactInfo(message, offer);
         }
         return null;
+    }
+
+    private SendMessage checkContactInfo(Message message, AgencyOffer offer) throws TelegramApiException, IOException {
+        AcceptedOffer acceptedOffer =acceptedOfferRepository.findById(userId);
+        if(acceptedOffer==null){
+            return setContactQuestion(message, offer);
+        }else {
+            dataCache.setQuestion(userId,
+                    questionService.getByKeyword(StaticStates.REPLY_END.toString()));
+            message.setText(acceptedOffer.getPhoneNumber());
+            return inputMessageHandler.handle(message, bot, true);
+        }
     }
 
     private SendMessage setContactQuestion(Message message, AgencyOffer offer) throws TelegramApiException, IOException {
