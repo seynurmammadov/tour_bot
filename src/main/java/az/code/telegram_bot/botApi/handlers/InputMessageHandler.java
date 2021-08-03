@@ -104,9 +104,10 @@ public class InputMessageHandler implements MessageHandler {
         return actionType == ActionType.CALENDAR;
     }
 
-    private void acceptOffer(String phoneNumber) throws IOException {
+    private void acceptOffer(String phoneNumber) {
         AcceptedOffer offer = acceptedOfferRepository.findById(userId);
         offer.setPhoneNumber(phoneNumber);
+        acceptedOfferRepository.save(userId,offer);
         template.convertAndSend(RabbitMQConfig.exchange, RabbitMQConfig.accepted, offer);
         dataCache.setQuestion(userId, Question.builder().state(StaticStates.END.toString()).build());
         dataCache.clearData(userId);
