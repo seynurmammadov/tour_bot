@@ -76,7 +76,12 @@ public class ReplyMessageHandler implements MessageHandler {
         if (botSession.isPresent()) {
             botSession.get().setWaitingAnswer(false);
             sessionService.save(botSession.get());
-            return setContactQuestion(message,offer);
+            if(acceptedOfferRepository.findById(userId)==null){
+                return setContactQuestion(message,offer);
+            }else {
+                dataCache.setQuestion(userId,
+                        questionService.getByKeyword(StaticStates.REPLY_END.toString()));
+            }
         }
         return null;
     }

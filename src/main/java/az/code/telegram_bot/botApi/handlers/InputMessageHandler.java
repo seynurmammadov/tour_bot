@@ -105,7 +105,6 @@ public class InputMessageHandler implements MessageHandler {
     }
 
     private void acceptOffer(String phoneNumber) throws IOException {
-
         AcceptedOffer offer = acceptedOfferRepository.findById(userId);
         offer.setPhoneNumber(phoneNumber);
         template.convertAndSend(RabbitMQConfig.exchange, RabbitMQConfig.accepted, offer);
@@ -226,7 +225,7 @@ public class InputMessageHandler implements MessageHandler {
     }
 
 
-    private void sendOfferOrAnswers(Question question, String userAnswer) throws TelegramApiException, IOException {
+    private void sendOfferOrAnswers(Question question, String userAnswer) throws IOException {
         boolean end = Objects.equals(question.getState(), StaticStates.REPLY_END.toString());
         Optional<Action> questionAction = question.getActions().stream().findFirst();
         if (questionAction.isPresent()) {

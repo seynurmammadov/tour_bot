@@ -1,6 +1,7 @@
 package az.code.telegram_bot.models;
 
 import lombok.*;
+import org.telegram.telegrambots.meta.api.objects.Contact;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -28,4 +29,5 @@ public class BotSession {
     LocalDateTime createdAt;
     boolean waitingAnswer;
     LocalDateTime expiredAt;
+    Contact contact;
 }

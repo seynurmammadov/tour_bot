@@ -1,5 +1,6 @@
 package az.code.telegram_bot.cache;
 
+import az.code.telegram_bot.models.AcceptedOffer;
 import az.code.telegram_bot.models.Question;
 import az.code.telegram_bot.models.UserData;
 import az.code.telegram_bot.repositories.LanguageRepository;
@@ -7,6 +8,7 @@ import az.code.telegram_bot.repositories.RedisRepository;
 import az.code.telegram_bot.services.Interfaces.AgencyOfferService;
 import az.code.telegram_bot.services.Interfaces.MessageService;
 import az.code.telegram_bot.services.Interfaces.QuestionService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -27,17 +29,20 @@ public class DataCacheImpl implements DataCache {
     final
     RedisRepository<Question> stateRepository;
     final
+    RedisRepository<AcceptedOffer> acceptedOfferRedisRepository;
+    final
     AgencyOfferService offerService;
 
     public DataCacheImpl(QuestionService questionService, LanguageRepository languageRepository,
                          MessageService messageService, RedisRepository<UserData> userDataRepository,
-                         RedisRepository<Question> stateRepository, AgencyOfferService offerService) {
+                         RedisRepository<Question> stateRepository, AgencyOfferService offerService, RedisRepository<AcceptedOffer> acceptedOfferRedisRepository) {
         this.questionService = questionService;
         this.languageRepository = languageRepository;
         this.messageService = messageService;
         this.userDataRepository = userDataRepository;
         this.stateRepository = stateRepository;
         this.offerService = offerService;
+        this.acceptedOfferRedisRepository = acceptedOfferRedisRepository;
     }
 
     @Override
@@ -100,7 +105,7 @@ public class DataCacheImpl implements DataCache {
         offerService.clearData(userData.getUUID());
         stateRepository.delete(userId);
         userDataRepository.delete(userId);
-
+        acceptedOfferRedisRepository.delete(userId);
     }
 
     @Override
