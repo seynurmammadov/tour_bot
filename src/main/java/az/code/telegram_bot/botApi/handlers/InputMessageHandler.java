@@ -104,10 +104,13 @@ public class InputMessageHandler implements MessageHandler {
         return actionType == ActionType.CALENDAR;
     }
 
-    private void acceptOffer(String phoneNumber) {
+    private void acceptOffer(String phoneNumber) throws IOException {
+
         AcceptedOffer offer = acceptedOfferRepository.findById(userId);
         offer.setPhoneNumber(phoneNumber);
         template.convertAndSend(RabbitMQConfig.exchange, RabbitMQConfig.accepted, offer);
+        dataCache.setQuestion(userId, Question.builder().state(StaticStates.END.toString()).build());
+        dataCache.clearData(userId);
     }
 
     /**
