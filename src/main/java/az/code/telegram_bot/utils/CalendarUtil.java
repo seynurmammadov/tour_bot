@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.joda.time.LocalDate;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
@@ -69,11 +70,10 @@ public class CalendarUtil {
 
     private LocalDate getDay(LocalDate date) {
         LocalDate firstDay;
-        if(LocalDate.now().equals(date)){
-             firstDay = date;
-        }
-        else {
-             firstDay = date.dayOfMonth().withMinimumValue();
+        if (LocalDate.now().equals(date)) {
+            firstDay = date;
+        } else {
+            firstDay = date.dayOfMonth().withMinimumValue();
         }
         return firstDay;
     }
@@ -105,13 +105,13 @@ public class CalendarUtil {
         List<InlineKeyboardButton> headerRow = new ArrayList<>();
         switch ((int) this.langId) {
             case 1:
-                headerRow.add(createButton(IGNORE, date.toString("MMM yyyy", new Locale("ru"))));
+                headerRow.add(createButton(IGNORE,  StringUtils.capitalize(date.toString("MMMM yyyy", new Locale("RU")))));
                 break;
             case 2:
-                headerRow.add(createButton(IGNORE, date.toString("MMM yyyy", new Locale("az"))));
+                headerRow.add(createButton(IGNORE,  StringUtils.capitalize(date.toString("MMMM yyyy", new Locale("az")))));
                 break;
             default:
-                headerRow.add(createButton(IGNORE, date.toString("MMM yyyy", new Locale("en"))));
+                headerRow.add(createButton(IGNORE, StringUtils.capitalize(date.toString("MMMM yyyy", new Locale("en")))));
         }
         return headerRow;
     }
@@ -131,9 +131,9 @@ public class CalendarUtil {
         }
         for (int j = shift; j < 7; j++) {
             if (day <= (date.dayOfMonth().getMaximumValue())) {
-                if(isToday(date, day)){
+                if (isToday(date, day)) {
                     row.add(createButton(callbackDate.toString(), "\uD83D\uDCCD"));
-                }else {
+                } else {
                     row.add(createButton(callbackDate.toString(), Integer.toString(day)));
                 }
                 day++;
