@@ -21,6 +21,7 @@ import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -64,6 +65,7 @@ public class MessageServiceImpl implements MessageService {
                 .replyMarkup(createInlMarkup(nextQuestion.getActions(), langId))
                 .build();
     }
+
     public String getNextBtnText(BotSession botSession, Question nextQuestion, Long langId) {
         return String.format(
                 questionGenerator(nextQuestion, langId),
@@ -167,6 +169,7 @@ public class MessageServiceImpl implements MessageService {
     public DeleteMessage deleteMessage(String chatId, Integer messageId) {
         return DeleteMessage.builder().chatId(chatId).messageId(messageId).build();
     }
+
     @Override
     public SendMessage getMessageByAction(Question question,
                                           Language language, ActionType actionType, String chatId) {
@@ -174,29 +177,31 @@ public class MessageServiceImpl implements MessageService {
             case FREETEXT:
                 return simpleQuestionMessage(chatId, question, language.getId());
             case BUTTON:
-                return msgWithRepKeyboard(chatId, question,  language.getId());
+                return msgWithRepKeyboard(chatId, question, language.getId());
             case INLINE_BUTTON:
-                return msgWithInlKeyboard(chatId, question,  language.getId());
+                return msgWithInlKeyboard(chatId, question, language.getId());
             case CALENDAR:
-                return createCalendar(chatId, question,  language);
+                return createCalendar(chatId, question, language);
             case BUTTON_CONTACT_INFO:
-                return createBtnContactInfo(chatId, question,  language.getId());
+                return createBtnContactInfo(chatId, question, language.getId());
             default:
                 return null;
         }
     }
+
     private SendMessage createBtnContactInfo(String chatId, Question question, Long langId) {
         return buttonsUtil.buttonMessage(
-                createRepMarkup(question.getActions(), langId,true),
+                createRepMarkup(question.getActions(), langId, true),
                 chatId,
                 questionGenerator(question, langId)
         );
     }
-    private ReplyKeyboardMarkup createRepMarkup(Set<Action> actions, Long langId,boolean contact_info) {
+
+    private ReplyKeyboardMarkup createRepMarkup(Set<Action> actions, Long langId, boolean contact_info) {
         return ReplyKeyboardMarkup.builder()
                 .keyboard(
                         buttonsUtil.createRepKeyboard(
-                                translateUtil.getActionsTranslate(actions, langId),contact_info
+                                translateUtil.getActionsTranslate(actions, langId), contact_info
                         )
                 )
                 .resizeKeyboard(true)
@@ -204,8 +209,9 @@ public class MessageServiceImpl implements MessageService {
                 .oneTimeKeyboard(false)
                 .build();
     }
+
     private ReplyKeyboardMarkup createRepMarkup(Set<Action> actions, Long langId) {
-        return createRepMarkup(actions,langId,false);
+        return createRepMarkup(actions, langId, false);
     }
 
     private InlineKeyboardMarkup createInlMarkup(Set<Action> actions, Long langId) {
