@@ -1,6 +1,7 @@
 package az.code.telegram_bot.utils;
 
 
+import az.code.telegram_bot.models.Language;
 import lombok.Getter;
 import lombok.Setter;
 import org.joda.time.LocalDate;
@@ -22,10 +23,10 @@ public class CalendarUtil {
     public static final String IGNORE = "ignore!@#$%^&";
     @Setter
     @Getter
-    public long langId;
+    public Language language;
 
-    public InlineKeyboardMarkup generateCalendar(LocalDate date, long langId) {
-        this.langId = langId;
+    public InlineKeyboardMarkup generateCalendar(LocalDate date, Language language) {
+        this.language = language;
         if (date == null) {
             return null;
         }
@@ -79,17 +80,7 @@ public class CalendarUtil {
     }
 
     public List<InlineKeyboardButton> getWDButtons() {
-        List<String> WD = new ArrayList<>();
-        switch ((int) this.langId) {
-            case 1:
-                WD.addAll(getWeekdays(new Locale("ru")));
-                break;
-            case 2:
-                WD.addAll(getWeekdays(new Locale("az")));
-                break;
-            default:
-                WD.addAll(getWeekdays(new Locale("en")));
-        }
+        List<String> WD = new ArrayList<>(getWeekdays(new Locale(language.getKeyword())));
         return getWDButtons(WD);
     }
 
@@ -103,16 +94,7 @@ public class CalendarUtil {
 
     public List<InlineKeyboardButton> getMonth(LocalDate date) {
         List<InlineKeyboardButton> headerRow = new ArrayList<>();
-        switch ((int) this.langId) {
-            case 1:
-                headerRow.add(createButton(IGNORE,  StringUtils.capitalize(date.toString("MMMM yyyy", new Locale("RU")))));
-                break;
-            case 2:
-                headerRow.add(createButton(IGNORE,  StringUtils.capitalize(date.toString("MMMM yyyy", new Locale("az")))));
-                break;
-            default:
-                headerRow.add(createButton(IGNORE, StringUtils.capitalize(date.toString("MMMM yyyy", new Locale("en")))));
-        }
+        headerRow.add(createButton(IGNORE, StringUtils.capitalize(date.toString("MMMM yyyy", new Locale(language.getKeyword())))));
         return headerRow;
     }
 

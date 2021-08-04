@@ -1,7 +1,7 @@
 package az.code.telegram_bot.services.Interfaces;
 
-import az.code.telegram_bot.TelegramWebHook;
 import az.code.telegram_bot.exceptions.MyCustomException;
+import az.code.telegram_bot.models.Language;
 import az.code.telegram_bot.models.Question;
 import az.code.telegram_bot.models.BotSession;
 import az.code.telegram_bot.models.enums.ActionType;
@@ -13,7 +13,6 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageRe
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 
 public interface MessageService {
@@ -23,9 +22,9 @@ public interface MessageService {
 
     SendMessage simpleQuestionMessage(String chatId, Question question, Long langId);
 
-    SendMessage createCalendar(String chatId, Question question, Long langId);
+    SendMessage createCalendar(String chatId, Question question, Language language);
 
-    EditMessageReplyMarkup updateCalendar(Message message, Long langId, LocalDate localDate);
+    EditMessageReplyMarkup updateCalendar(Message message, Language language, LocalDate localDate);
 
     String questionGenerator(Question question, Long langId);
 
@@ -45,5 +44,5 @@ public interface MessageService {
 
     EditMessageText editCalendarMessage(Question question, Message message, Long langId);
 
-    SendMessage getMessageByAction(Question question, long langId, ActionType actionType, String chatId);
+    SendMessage getMessageByAction(Question question, Language language, ActionType actionType, String chatId);
 }

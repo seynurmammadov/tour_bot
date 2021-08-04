@@ -5,9 +5,11 @@ import az.code.telegram_bot.botApi.handlers.interfaces.MessageHandler;
 import az.code.telegram_bot.botApi.handlers.interfaces.QueryHandler;
 import az.code.telegram_bot.cache.DataCacheImpl;
 import az.code.telegram_bot.exceptions.BeforeCurrentDateException;
+import az.code.telegram_bot.models.Language;
 import az.code.telegram_bot.models.Question;
 import az.code.telegram_bot.models.enums.ActionType;
 import az.code.telegram_bot.models.enums.QueryType;
+import az.code.telegram_bot.repositories.LanguageRepository;
 import az.code.telegram_bot.services.Interfaces.ListenerService;
 import az.code.telegram_bot.services.Interfaces.MessageService;
 import az.code.telegram_bot.utils.CalendarUtil;
@@ -31,9 +33,12 @@ public class CallbackQueryHandler implements QueryHandler {
     MessageService messageService;
     final
     MessageHandler inputMessageHandler;
+    final
+    LanguageRepository languageRepository;
 
     private Long userId;
     private Long langId;
+    private Language language;
     private String chatId;
     private TelegramWebHook bot;
 
@@ -43,11 +48,12 @@ public class CallbackQueryHandler implements QueryHandler {
 
     public CallbackQueryHandler(DataCacheImpl dataCache, ListenerService listenerService,
                                 MessageService messageService,
-                                @Qualifier("inputMessageHandler") MessageHandler inputMessageHandler) {
+                                @Qualifier("inputMessageHandler") MessageHandler inputMessageHandler, LanguageRepository languageRepository) {
         this.dataCache = dataCache;
         this.listenerService = listenerService;
         this.messageService = messageService;
         this.inputMessageHandler = inputMessageHandler;
+        this.languageRepository = languageRepository;
     }
 
     @Override
@@ -96,7 +102,7 @@ public class CallbackQueryHandler implements QueryHandler {
             return setCalendarAnswer(buttonQuery);
         } else {
             return messageService.updateCalendar(buttonQuery.getMessage(),
-                    langId,
+                    language,
                     LocalDate.parse(buttonQuery.getData() + "-" + LocalDate.now().getDayOfMonth())
             );
         }
@@ -139,6 +145,7 @@ public class CallbackQueryHandler implements QueryHandler {
         this.userId = query.getFrom().getId();
         this.chatId = query.getMessage().getChatId().toString();
         this.langId = dataCache.getUserData(userId).getLangId();
+        this.language = languageRepository.getById(langId);
         this.bot = bot;
     }
 

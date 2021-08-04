@@ -21,6 +21,7 @@ public class Language implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     String lang;
+    String keyword;
     @JsonIgnore
     @OneToMany(mappedBy = "language")
     List<QuestionTranslate> questionTranslates;

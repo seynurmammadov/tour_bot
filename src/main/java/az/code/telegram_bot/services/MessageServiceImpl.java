@@ -2,6 +2,7 @@ package az.code.telegram_bot.services;
 
 import az.code.telegram_bot.exceptions.MyCustomException;
 import az.code.telegram_bot.models.Action;
+import az.code.telegram_bot.models.Language;
 import az.code.telegram_bot.models.Question;
 import az.code.telegram_bot.models.BotSession;
 import az.code.telegram_bot.models.enums.ActionType;
@@ -80,19 +81,19 @@ public class MessageServiceImpl implements MessageService {
     }
 
     @Override
-    public SendMessage createCalendar(String chatId, Question question, Long langId) {
+    public SendMessage createCalendar(String chatId, Question question, Language language) {
         return buttonsUtil.buttonMessage(
-                calendarUtil.generateCalendar(LocalDate.now(), langId),
+                calendarUtil.generateCalendar(LocalDate.now(), language),
                 chatId,
-                questionGenerator(question, langId)
+                questionGenerator(question, language.getId())
         );
     }
 
     @Override
-    public EditMessageReplyMarkup updateCalendar(Message message, Long langId, LocalDate localDate) {
+    public EditMessageReplyMarkup updateCalendar(Message message, Language language, LocalDate localDate) {
         return EditMessageReplyMarkup.builder()
                 .chatId(message.getChatId().toString())
-                .replyMarkup(calendarUtil.generateCalendar(localDate, langId))
+                .replyMarkup(calendarUtil.generateCalendar(localDate, language))
                 .messageId(message.getMessageId())
                 .build();
 
@@ -167,19 +168,19 @@ public class MessageServiceImpl implements MessageService {
         return DeleteMessage.builder().chatId(chatId).messageId(messageId).build();
     }
     @Override
-    public SendMessage getMessageByAction(Question question, long langId,
-                                          ActionType actionType,String chatId) {
+    public SendMessage getMessageByAction(Question question,
+                                          Language language, ActionType actionType, String chatId) {
         switch (actionType) {
             case FREETEXT:
-                return simpleQuestionMessage(chatId, question, langId);
+                return simpleQuestionMessage(chatId, question, language.getId());
             case BUTTON:
-                return msgWithRepKeyboard(chatId, question, langId);
+                return msgWithRepKeyboard(chatId, question,  language.getId());
             case INLINE_BUTTON:
-                return msgWithInlKeyboard(chatId, question, langId);
+                return msgWithInlKeyboard(chatId, question,  language.getId());
             case CALENDAR:
-                return createCalendar(chatId, question, langId);
+                return createCalendar(chatId, question,  language);
             case BUTTON_CONTACT_INFO:
-                return createBtnContactInfo(chatId, question, langId);
+                return createBtnContactInfo(chatId, question,  language.getId());
             default:
                 return null;
         }

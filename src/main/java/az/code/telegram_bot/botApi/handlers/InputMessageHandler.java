@@ -9,9 +9,11 @@ import az.code.telegram_bot.exceptions.OfferShouldBeRepliedException;
 import az.code.telegram_bot.exceptions.StartBeforeException;
 import az.code.telegram_bot.models.AcceptedOffer;
 import az.code.telegram_bot.models.Action;
+import az.code.telegram_bot.models.Language;
 import az.code.telegram_bot.models.Question;
 import az.code.telegram_bot.models.enums.ActionType;
 import az.code.telegram_bot.models.enums.StaticStates;
+import az.code.telegram_bot.repositories.LanguageRepository;
 import az.code.telegram_bot.repositories.RedisRepository;
 import az.code.telegram_bot.services.Interfaces.BotSessionService;
 import az.code.telegram_bot.services.Interfaces.MessageService;
@@ -42,19 +44,22 @@ public class InputMessageHandler implements MessageHandler {
     BotSessionService sessionService;
     final
     RedisRepository<AcceptedOffer> acceptedOfferRepository;
+    final
+    LanguageRepository languageRepository;
 
     private Long userId;
     private String chatId;
     private TelegramWebHook bot;
 
     public InputMessageHandler(MessageService messageService, QuestionService questionService,
-                               DataCache dataCache, RabbitTemplate template, RedisRepository<AcceptedOffer> acceptedOfferRepository, BotSessionService sessionService) {
+                               DataCache dataCache, RabbitTemplate template, RedisRepository<AcceptedOffer> acceptedOfferRepository, BotSessionService sessionService, LanguageRepository languageRepository) {
         this.messageService = messageService;
         this.questionService = questionService;
         this.dataCache = dataCache;
         this.template = template;
         this.acceptedOfferRepository = acceptedOfferRepository;
         this.sessionService = sessionService;
+        this.languageRepository = languageRepository;
     }
 
     /**
@@ -76,7 +81,9 @@ public class InputMessageHandler implements MessageHandler {
             checkAnswerNCaching(currentQuestion, message);
             currentQuestion = dataCache.getCurrentQuestion(userId);
         }
-        return getMessage(currentQuestion, message.getText());
+        long langId = dataCache.getUserData(userId).getLangId();
+        Language language = languageRepository.getById(langId);
+        return getMessage(currentQuestion, message.getText(), language);
     }
 
     private SendMessage checkQuestionStatus(Question currentQuestion) {
@@ -107,7 +114,7 @@ public class InputMessageHandler implements MessageHandler {
     private void acceptOffer(String phoneNumber) {
         AcceptedOffer offer = acceptedOfferRepository.findById(userId);
         offer.setPhoneNumber(phoneNumber);
-        acceptedOfferRepository.save(userId,offer);
+        acceptedOfferRepository.save(userId, offer);
         template.convertAndSend(RabbitMQConfig.exchange, RabbitMQConfig.accepted, offer);
         dataCache.setQuestion(userId, Question.builder().state(StaticStates.END.toString()).build());
         dataCache.clearData(userId);
@@ -200,7 +207,7 @@ public class InputMessageHandler implements MessageHandler {
     /**
      * Method send collected user data to rabbit mq
      */
-    private void sendCollectedData()  {
+    private void sendCollectedData() {
         template.convertAndSend(RabbitMQConfig.exchange,
                 RabbitMQConfig.sent,
                 dataCache.getUserData(userId));
@@ -215,18 +222,17 @@ public class InputMessageHandler implements MessageHandler {
      * @param question the question answered by the user
      * @return Message which created by actionType
      */
-    public SendMessage getMessage(Question question, String userAnswer) throws TelegramApiException, IOException {
-        long langId = dataCache.getUserData(userId).getLangId();
+    public SendMessage getMessage(Question question, String userAnswer, Language language) throws IOException {
         ActionType actionType = question.getActions().stream()
                 .findFirst()
                 .orElseThrow(RuntimeException::new)
                 .getType();
         sendOfferOrAnswers(question, userAnswer);
-        return messageService.getMessageByAction(question, langId, actionType, chatId);
+        return messageService.getMessageByAction(question, language, actionType, chatId);
     }
 
 
-    private void sendOfferOrAnswers(Question question, String userAnswer) throws IOException {
+    private void sendOfferOrAnswers(Question question, String userAnswer) {
         boolean end = Objects.equals(question.getState(), StaticStates.REPLY_END.toString());
         Optional<Action> questionAction = question.getActions().stream().findFirst();
         if (questionAction.isPresent()) {
