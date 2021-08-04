@@ -55,14 +55,7 @@ public class CalendarUtil {
 
     private List<List<InlineKeyboardButton>> addDays(LocalDate date) {
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        LocalDate firstDay;
-        if(LocalDate.now().isAfter(date)){
-             firstDay = date;
-        }
-        else {
-             firstDay = date.dayOfMonth().withMinimumValue();
-        }
-
+        LocalDate firstDay = getDay(date);
         int shift = firstDay.dayOfWeek().get() - 1;
         int daysInMonth = firstDay.dayOfMonth().getMaximumValue();
         int rows = ((daysInMonth + shift) % 7 > 0 ? 1 : 0) + (daysInMonth + shift) / 7;
@@ -72,6 +65,17 @@ public class CalendarUtil {
             shift = 0;
         }
         return keyboard;
+    }
+
+    private LocalDate getDay(LocalDate date) {
+        LocalDate firstDay;
+        if(LocalDate.now().equals(date)){
+             firstDay = date;
+        }
+        else {
+             firstDay = date.dayOfMonth().withMinimumValue();
+        }
+        return firstDay;
     }
 
     public List<InlineKeyboardButton> getWDButtons() {
@@ -127,7 +131,7 @@ public class CalendarUtil {
         }
         for (int j = shift; j < 7; j++) {
             if (day <= (date.dayOfMonth().getMaximumValue())) {
-                if(LocalDate.now().isAfter(date)){
+                if(LocalDate.now().equals(date)){
                     row.add(createButton(callbackDate.toString(), "\uD83D\uDCCD"));
                 }else {
                     row.add(createButton(callbackDate.toString(), Integer.toString(day++)));
