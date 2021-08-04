@@ -74,8 +74,6 @@ public class ReplyMessageHandler implements MessageHandler {
     private SendMessage waitingStatusNQuestion(Message message, String UUID, AgencyOffer offer) throws TelegramApiException, IOException {
         Optional<BotSession> botSession = sessionService.getByUUID(UUID);
         if (botSession.isPresent()) {
-            botSession.get().setWaitingAnswer(false);
-            sessionService.save(botSession.get());
             return checkContactInfo(message, offer);
         }
         return null;

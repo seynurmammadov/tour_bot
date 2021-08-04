@@ -2,9 +2,9 @@ package az.code.telegram_bot.exceptions;
 
 public class StopNotifyException extends Exception implements MyCustomException {
 
-    String ru = "Вы остановили запрос!";
-    String en = "You have stopped the request!";
-    String az = "Sorğunu dayandırdınız!";
+    String ru = "Запрос остановлен!";
+    String en = "The request have stopped!";
+    String az = "Sorğunuz dayandırıldı!";
 
     @Override
     public String getAz() {
