@@ -13,5 +13,5 @@ public interface MyCustomException {
             default:
                 return getEn();
         }
-    };
+    }
 }

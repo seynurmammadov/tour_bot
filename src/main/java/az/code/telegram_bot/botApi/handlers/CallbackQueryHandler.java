@@ -134,12 +134,6 @@ public class CallbackQueryHandler implements QueryHandler {
         return null;
     }
 
-    /**
-     * Method sets data that is used in other methods.
-     *
-     * @param query user response query
-     * @param bot   TelegramWebHook for sending additional messages
-     */
     private void setData(CallbackQuery query, TelegramWebHook bot) {
         this.userId = query.getFrom().getId();
         this.chatId = query.getMessage().getChatId().toString();

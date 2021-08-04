@@ -1,12 +1,9 @@
 package az.code.telegram_bot.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.List;
-
 @Getter
 @Setter
 @NoArgsConstructor

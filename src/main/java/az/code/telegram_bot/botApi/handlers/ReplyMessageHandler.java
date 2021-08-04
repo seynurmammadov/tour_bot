@@ -71,7 +71,7 @@ public class ReplyMessageHandler implements MessageHandler {
         }
     }
 
-    private SendMessage waitingStatusNQuestion(Message message, String UUID,AgencyOffer offer) throws TelegramApiException, IOException {
+    private SendMessage waitingStatusNQuestion(Message message, String UUID, AgencyOffer offer) throws TelegramApiException, IOException {
         Optional<BotSession> botSession = sessionService.getByUUID(UUID);
         if (botSession.isPresent()) {
             botSession.get().setWaitingAnswer(false);
@@ -82,15 +82,15 @@ public class ReplyMessageHandler implements MessageHandler {
     }
 
     private SendMessage checkContactInfo(Message message, AgencyOffer offer) throws TelegramApiException, IOException {
-        AcceptedOffer acceptedOffer =acceptedOfferRepository.findById(userId);
-        if(acceptedOffer==null){
+        AcceptedOffer acceptedOffer = acceptedOfferRepository.findById(userId);
+        if (acceptedOffer == null) {
             return setContactQuestion(message, offer);
-        }else {
+        } else {
             dataCache.setQuestion(userId,
                     questionService.getByKeyword(StaticStates.REPLY_END.toString()));
             message.setText(acceptedOffer.getPhoneNumber());
             acceptedOffer.setAgentUsername(offer.getUsername());
-            acceptedOfferRepository.save(userId,acceptedOffer);
+            acceptedOfferRepository.save(userId, acceptedOffer);
             return inputMessageHandler.handle(message, bot, true);
         }
     }
@@ -110,12 +110,6 @@ public class ReplyMessageHandler implements MessageHandler {
         return inputMessageHandler.handle(message, bot, true);
     }
 
-    /**
-     * Method sets data that is used in other methods.
-     *
-     * @param message user response message
-     * @param bot     TelegramWebHook for sending additional messages
-     */
     private void setData(Message message, TelegramWebHook bot) {
         this.userId = message.getFrom().getId();
         this.chatId = message.getChatId().toString();

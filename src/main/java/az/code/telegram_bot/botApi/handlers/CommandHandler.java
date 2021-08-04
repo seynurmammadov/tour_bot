@@ -69,7 +69,7 @@ public class CommandHandler implements MessageHandler {
             template.convertAndSend(RabbitMQConfig.exchange,
                     RabbitMQConfig.cancelled,
                     dataCache.getUserData(userId).getUUID());
-            Long langID =dataCache.getUserData(userId).getLangId();
+            Long langID = dataCache.getUserData(userId).getLangId();
             dataCache.clearDataAndState(userId);
             sessionService.deactivate(userId);
             return messageService.createNotify(chatId,
@@ -96,12 +96,6 @@ public class CommandHandler implements MessageHandler {
         }
     }
 
-    /**
-     * Method sets data that is used in other methods.
-     *
-     * @param message user response message
-     * @param bot     TelegramWebHook for sending additional messages
-     */
     private void setData(Message message, TelegramWebHook bot) {
         this.userId = message.getFrom().getId();
         this.chatId = message.getChatId().toString();

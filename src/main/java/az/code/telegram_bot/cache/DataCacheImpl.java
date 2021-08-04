@@ -60,6 +60,7 @@ public class DataCacheImpl implements DataCache {
             setQuestion(userId, questionService.getFirst());
         }
     }
+
     @Override
     public UserData getUserData(long userId) {
         UserData userProfileData = userDataRepository.findById(userId);
@@ -83,7 +84,6 @@ public class DataCacheImpl implements DataCache {
         userData.setLangId(langId);
         saveUserProfileData(userId, userData);
     }
-
 
     @Override
     public void setUUID(long userId, String UUID) {

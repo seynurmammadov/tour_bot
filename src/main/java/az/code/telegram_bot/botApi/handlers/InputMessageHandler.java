@@ -13,20 +13,17 @@ import az.code.telegram_bot.models.Language;
 import az.code.telegram_bot.models.Question;
 import az.code.telegram_bot.models.enums.ActionType;
 import az.code.telegram_bot.models.enums.StaticStates;
-import az.code.telegram_bot.repositories.LanguageRepository;
 import az.code.telegram_bot.repositories.RedisRepository;
 import az.code.telegram_bot.services.Interfaces.BotSessionService;
 import az.code.telegram_bot.services.Interfaces.LanguageService;
 import az.code.telegram_bot.services.Interfaces.MessageService;
 import az.code.telegram_bot.services.Interfaces.QuestionService;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
-import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
@@ -54,7 +51,10 @@ public class InputMessageHandler implements MessageHandler {
     private TelegramWebHook bot;
 
     public InputMessageHandler(MessageService messageService, QuestionService questionService,
-                               DataCache dataCache, RabbitTemplate template, RedisRepository<AcceptedOffer> acceptedOfferRepository, BotSessionService sessionService, LanguageRepository languageRepository, LanguageService languageService) {
+                               DataCache dataCache, RabbitTemplate template,
+                               RedisRepository<AcceptedOffer> acceptedOfferRepository,
+                               BotSessionService sessionService,
+                               LanguageService languageService) {
         this.messageService = messageService;
         this.questionService = questionService;
         this.dataCache = dataCache;
@@ -72,7 +72,7 @@ public class InputMessageHandler implements MessageHandler {
      * @return question with actionType, if was last question or if user answer is incorrect {@code null}
      */
     @Override
-    public SendMessage handle(Message message, TelegramWebHook bot, boolean command) throws TelegramApiException, IOException {
+    public SendMessage handle(Message message, TelegramWebHook bot, boolean command) throws TelegramApiException {
         setData(message, bot);
         Question currentQuestion = dataCache.getCurrentQuestion(userId);
         SendMessage sendMessage = checkQuestionStatus(currentQuestion);
