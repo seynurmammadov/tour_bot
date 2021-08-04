@@ -131,17 +131,22 @@ public class CalendarUtil {
         }
         for (int j = shift; j < 7; j++) {
             if (day <= (date.dayOfMonth().getMaximumValue())) {
-                if(LocalDate.now().getDayOfMonth() == day){
+                if(isToday(date, day)){
                     row.add(createButton(callbackDate.toString(), "\uD83D\uDCCD"));
                 }else {
-                    row.add(createButton(callbackDate.toString(), Integer.toString(day++)));
+                    row.add(createButton(callbackDate.toString(), Integer.toString(day)));
                 }
+                day++;
                 callbackDate = callbackDate.plusDays(1);
             } else {
                 row.add(createButton(IGNORE, " "));
             }
         }
         return row;
+    }
+
+    private boolean isToday(LocalDate date, int day) {
+        return LocalDate.now().getDayOfMonth() == day && LocalDate.now().getMonthOfYear() == date.getMonthOfYear();
     }
 
     public List<String> getWeekdays(Locale loc) {
