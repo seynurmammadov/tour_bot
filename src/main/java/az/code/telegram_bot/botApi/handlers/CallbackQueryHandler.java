@@ -9,7 +9,7 @@ import az.code.telegram_bot.models.Language;
 import az.code.telegram_bot.models.Question;
 import az.code.telegram_bot.models.enums.ActionType;
 import az.code.telegram_bot.models.enums.QueryType;
-import az.code.telegram_bot.repositories.LanguageRepository;
+import az.code.telegram_bot.services.Interfaces.LanguageService;
 import az.code.telegram_bot.services.Interfaces.ListenerService;
 import az.code.telegram_bot.services.Interfaces.MessageService;
 import az.code.telegram_bot.utils.CalendarUtil;
@@ -33,27 +33,25 @@ public class CallbackQueryHandler implements QueryHandler {
     MessageService messageService;
     final
     MessageHandler inputMessageHandler;
-    final
-    LanguageRepository languageRepository;
 
     private Long userId;
     private Long langId;
     private Language language;
     private String chatId;
     private TelegramWebHook bot;
-
+    LanguageService languageService;
 
     final
     ListenerService listenerService;
 
     public CallbackQueryHandler(DataCacheImpl dataCache, ListenerService listenerService,
                                 MessageService messageService,
-                                @Qualifier("inputMessageHandler") MessageHandler inputMessageHandler, LanguageRepository languageRepository) {
+                                @Qualifier("inputMessageHandler") MessageHandler inputMessageHandler, LanguageService languageService) {
         this.dataCache = dataCache;
         this.listenerService = listenerService;
         this.messageService = messageService;
         this.inputMessageHandler = inputMessageHandler;
-        this.languageRepository = languageRepository;
+        this.languageService = languageService;
     }
 
     @Override
@@ -77,6 +75,7 @@ public class CallbackQueryHandler implements QueryHandler {
         }
         return null;
     }
+
     private ActionType getActionType(CallbackQuery buttonQuery, TelegramWebHook bot, Question question) throws TelegramApiException {
         ActionType actionType;
         try {
@@ -145,7 +144,7 @@ public class CallbackQueryHandler implements QueryHandler {
         this.userId = query.getFrom().getId();
         this.chatId = query.getMessage().getChatId().toString();
         this.langId = dataCache.getUserData(userId).getLangId();
-        this.language = languageRepository.getById(langId);
+        this.language = languageService.getLanguage(langId);
         this.bot = bot;
     }
 

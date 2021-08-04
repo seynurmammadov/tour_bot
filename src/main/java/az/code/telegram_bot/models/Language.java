@@ -22,7 +22,4 @@ public class Language implements Serializable {
     Long id;
     String lang;
     String keyword;
-    @JsonIgnore
-    @OneToMany(mappedBy = "language")
-    List<QuestionTranslate> questionTranslates;
 }

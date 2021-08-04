@@ -8,7 +8,6 @@ import az.code.telegram_bot.repositories.RedisRepository;
 import az.code.telegram_bot.services.Interfaces.AgencyOfferService;
 import az.code.telegram_bot.services.Interfaces.MessageService;
 import az.code.telegram_bot.services.Interfaces.QuestionService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -84,6 +83,7 @@ public class DataCacheImpl implements DataCache {
         userData.setLangId(langId);
         saveUserProfileData(userId, userData);
     }
+
 
     @Override
     public void setUUID(long userId, String UUID) {

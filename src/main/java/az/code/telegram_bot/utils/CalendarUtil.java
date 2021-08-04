@@ -26,7 +26,7 @@ public class CalendarUtil {
     public Language language;
 
     public InlineKeyboardMarkup generateCalendar(LocalDate date, Language language) {
-        this.language = language;
+        setLanguage(language);
         if (date == null) {
             return null;
         }

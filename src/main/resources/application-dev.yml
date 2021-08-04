@@ -1,5 +1,5 @@
 server:
-  port: 5000
+  port: 6000
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/tour_bot
@@ -14,7 +14,7 @@ spring:
 telegrambot:
   userName: "@tour_app_bot"
   botToken: 1851213801:AAHPc1W4pflBrlqFZNCPq4uWn_DZ8qxXTbU
-  webHookPath: https://4fd1b73b0a7b.ngrok.io
+  webHookPath: https://dede2a148e34.ngrok.io
   telegramUrl: https://api.telegram.org/bot
   botPath: webhook
 

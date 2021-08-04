@@ -16,9 +16,11 @@ import az.code.telegram_bot.models.enums.StaticStates;
 import az.code.telegram_bot.repositories.LanguageRepository;
 import az.code.telegram_bot.repositories.RedisRepository;
 import az.code.telegram_bot.services.Interfaces.BotSessionService;
+import az.code.telegram_bot.services.Interfaces.LanguageService;
 import az.code.telegram_bot.services.Interfaces.MessageService;
 import az.code.telegram_bot.services.Interfaces.QuestionService;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -45,21 +47,21 @@ public class InputMessageHandler implements MessageHandler {
     final
     RedisRepository<AcceptedOffer> acceptedOfferRepository;
     final
-    LanguageRepository languageRepository;
+    LanguageService languageService;
 
     private Long userId;
     private String chatId;
     private TelegramWebHook bot;
 
     public InputMessageHandler(MessageService messageService, QuestionService questionService,
-                               DataCache dataCache, RabbitTemplate template, RedisRepository<AcceptedOffer> acceptedOfferRepository, BotSessionService sessionService, LanguageRepository languageRepository) {
+                               DataCache dataCache, RabbitTemplate template, RedisRepository<AcceptedOffer> acceptedOfferRepository, BotSessionService sessionService, LanguageRepository languageRepository, LanguageService languageService) {
         this.messageService = messageService;
         this.questionService = questionService;
         this.dataCache = dataCache;
         this.template = template;
         this.acceptedOfferRepository = acceptedOfferRepository;
         this.sessionService = sessionService;
-        this.languageRepository = languageRepository;
+        this.languageService = languageService;
     }
 
     /**
@@ -81,9 +83,8 @@ public class InputMessageHandler implements MessageHandler {
             checkAnswerNCaching(currentQuestion, message);
             currentQuestion = dataCache.getCurrentQuestion(userId);
         }
-        long langId = dataCache.getUserData(userId).getLangId();
-        Language language = languageRepository.getById(langId);
-        return getMessage(currentQuestion, message.getText(), language);
+        long langId  =dataCache.getUserData(userId).getLangId();
+        return getMessage(currentQuestion, message.getText(), languageService.getLanguage(langId));
     }
 
     private SendMessage checkQuestionStatus(Question currentQuestion) {
@@ -222,7 +223,7 @@ public class InputMessageHandler implements MessageHandler {
      * @param question the question answered by the user
      * @return Message which created by actionType
      */
-    public SendMessage getMessage(Question question, String userAnswer, Language language) throws IOException {
+    public SendMessage getMessage(Question question, String userAnswer, Language language)  {
         ActionType actionType = question.getActions().stream()
                 .findFirst()
                 .orElseThrow(RuntimeException::new)
