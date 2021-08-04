@@ -63,6 +63,7 @@ public class ReplyMessageHandler implements MessageHandler {
         String UUID = dataCache.getUserData(userId).getUUID();
         Optional<AgencyOffer> offer = offerService.getByMessageIdAndUUID(this.replyId, UUID);
         if (offer.isPresent()) {
+
             return waitingStatusNQuestion(message, UUID, offer.get());
         } else {
             return messageService.createError(chatId,
@@ -74,6 +75,8 @@ public class ReplyMessageHandler implements MessageHandler {
     private SendMessage waitingStatusNQuestion(Message message, String UUID, AgencyOffer offer) throws TelegramApiException, IOException {
         Optional<BotSession> botSession = sessionService.getByUUID(UUID);
         if (botSession.isPresent()) {
+            offer.setAccepted(true);
+            offerService.save(offer);
             return checkContactInfo(message, offer);
         }
         return null;
