@@ -4,12 +4,9 @@ import az.code.telegram_bot.TelegramWebHook;
 import az.code.telegram_bot.botApi.handlers.interfaces.MessageHandler;
 import az.code.telegram_bot.botApi.handlers.interfaces.QueryHandler;
 import az.code.telegram_bot.cache.DataCache;
-import az.code.telegram_bot.models.AcceptedOffer;
 import az.code.telegram_bot.models.AgencyOffer;
-import az.code.telegram_bot.repositories.AcceptedOfferRepository;
 import az.code.telegram_bot.services.Interfaces.ListenerService;
 import az.code.telegram_bot.utils.LogUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -47,7 +44,7 @@ public class TelegramFacade {
                           @Qualifier("commandHandler") MessageHandler commandHandler,
                           ListenerService listenerService,
                           @Qualifier("replyMessageHandler") MessageHandler replyHandler,
-                          @Qualifier("contactHandler")  MessageHandler contactHandler) {
+                          @Qualifier("contactHandler") MessageHandler contactHandler) {
         this.dataCache = dataCache;
         this.inputMessageHandler = inputMessageHandler;
         this.callbackQueryHandler = callbackQueryHandler;

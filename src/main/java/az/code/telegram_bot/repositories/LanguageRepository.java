@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 public interface LanguageRepository extends JpaRepository<Language, Long> {
     @Query("select l from Language l where l.lang=:lang")
     Language getByLangName(String lang);
+
     @Query("select l from Language l where l.id=:id")
     Language getByLangId(Long id);
 }

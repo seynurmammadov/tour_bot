@@ -20,8 +20,8 @@ public class TranslateUtil {
                 .collect(Collectors.toList());
     }
 
-    public String getQuestionTranslate(Question question,Long langId){
-       return question.getQuestionTranslates()
+    public String getQuestionTranslate(Question question, Long langId) {
+        return question.getQuestionTranslates()
                 .stream()
                 .filter(q -> Objects.equals(q.getLanguage().getId(), langId))
                 .map(QuestionTranslate::getContext)

@@ -5,9 +5,11 @@ public enum CommandType {
     STOP("/stop"),
     ERROR("error");
     private final String command;
+
     CommandType(String command) {
-        this.command=command;
+        this.command = command;
     }
+
     public static CommandType valueOfCommand(String command) {
         for (CommandType e : values()) {
             if (e.command.equals(command)) {

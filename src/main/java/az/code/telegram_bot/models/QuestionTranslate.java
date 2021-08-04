@@ -15,7 +15,7 @@ import java.io.Serializable;
 @EqualsAndHashCode
 @ToString
 @Builder
-public class QuestionTranslate  implements Serializable {
+public class QuestionTranslate implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;

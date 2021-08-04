@@ -41,7 +41,7 @@ public class AgencyOfferImpl implements AgencyOfferService {
 
     private void deleteLocal(String UUID) throws IOException {
         List<AgencyOffer> agencyOffers = getAllByUUID(UUID);
-        for (AgencyOffer offer: agencyOffers) {
+        for (AgencyOffer offer : agencyOffers) {
             fileUtil.deleteWithPath(offer.getFilePath());
         }
 

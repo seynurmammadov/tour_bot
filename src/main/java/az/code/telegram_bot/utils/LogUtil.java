@@ -17,8 +17,9 @@ public class LogUtil {
                 message.getChatId(),
                 message.getText());
     }
-    public void logNewMessage(Message message){
-        logNewMessage(message,"message");
+
+    public void logNewMessage(Message message) {
+        logNewMessage(message, "message");
     }
 
 

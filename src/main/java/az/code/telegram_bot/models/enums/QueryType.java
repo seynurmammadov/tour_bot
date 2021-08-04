@@ -9,6 +9,6 @@ public enum QueryType {
     }
 
     QueryType(String val) {
-        this.val=val;
+        this.val = val;
     }
 }

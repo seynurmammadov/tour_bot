@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public class UserDataRepository implements RedisRepository<UserData>{
+public class UserDataRepository implements RedisRepository<UserData> {
 
     public static final String HASH_KEY = "UserData";
 
@@ -16,8 +16,8 @@ public class UserDataRepository implements RedisRepository<UserData>{
         this.template = template;
     }
 
-    public UserData save(Long userId,UserData data) {
-        template.opsForHash().put(HASH_KEY,userId, data);
+    public UserData save(Long userId, UserData data) {
+        template.opsForHash().put(HASH_KEY, userId, data);
         return data;
     }
 

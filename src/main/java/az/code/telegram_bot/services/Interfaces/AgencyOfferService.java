@@ -8,8 +8,12 @@ import java.util.Optional;
 
 public interface AgencyOfferService {
     void save(AgencyOffer agencyOffer);
+
     void clearData(String UUID) throws IOException;
+
     void delete(AgencyOffer offer);
+
     List<AgencyOffer> getAllByUUID(String UUID);
-    Optional<AgencyOffer> getByMessageIdAndUUID(Integer messageId,String UUID);
+
+    Optional<AgencyOffer> getByMessageIdAndUUID(Integer messageId, String UUID);
 }

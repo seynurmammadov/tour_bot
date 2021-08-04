@@ -8,5 +8,5 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.io.IOException;
 
 public interface MessageHandler {
-    SendMessage handle(Message message, TelegramWebHook bot,boolean isCommand) throws TelegramApiException, IOException;
+    SendMessage handle(Message message, TelegramWebHook bot, boolean isCommand) throws TelegramApiException, IOException;
 }

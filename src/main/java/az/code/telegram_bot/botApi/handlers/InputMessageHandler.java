@@ -83,7 +83,7 @@ public class InputMessageHandler implements MessageHandler {
             checkAnswerNCaching(currentQuestion, message);
             currentQuestion = dataCache.getCurrentQuestion(userId);
         }
-        long langId  =dataCache.getUserData(userId).getLangId();
+        long langId = dataCache.getUserData(userId).getLangId();
         return getMessage(currentQuestion, message.getText(), languageService.getLanguage(langId));
     }
 
@@ -223,7 +223,7 @@ public class InputMessageHandler implements MessageHandler {
      * @param question the question answered by the user
      * @return Message which created by actionType
      */
-    public SendMessage getMessage(Question question, String userAnswer, Language language)  {
+    public SendMessage getMessage(Question question, String userAnswer, Language language) {
         ActionType actionType = question.getActions().stream()
                 .findFirst()
                 .orElseThrow(RuntimeException::new)

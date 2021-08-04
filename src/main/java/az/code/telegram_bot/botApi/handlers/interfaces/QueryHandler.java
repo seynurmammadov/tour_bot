@@ -8,5 +8,5 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import java.io.IOException;
 
 public interface QueryHandler {
-    BotApiMethod<?> handle(CallbackQuery buttonQuery,TelegramWebHook bot) throws TelegramApiException, IOException;
+    BotApiMethod<?> handle(CallbackQuery buttonQuery, TelegramWebHook bot) throws TelegramApiException, IOException;
 }

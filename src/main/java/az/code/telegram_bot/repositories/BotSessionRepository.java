@@ -12,12 +12,15 @@ import java.util.Optional;
 public interface BotSessionRepository extends JpaRepository<BotSession, Long> {
     @Query("select t from BotSession t where t.UUID=:UUID and t.status=true")
     Optional<BotSession> getByUUID(String UUID);
+
     @Modifying
     @Transactional
     @Query("update BotSession t set t.status=false where t.client_id=:userId")
     void deactivateSeance(Long userId);
+
     @Query("select t from BotSession t where t.client_id=:clientID and t.status=true")
     Optional<BotSession> getByClient_id(Long clientID);
+
     @Query("SELECT t FROM BotSession t WHERE t.waitingAnswer=true and t.expiredAt < CURRENT_TIMESTAMP and t.status=true")
     List<BotSession> getNotAnsweredSessions();
 }

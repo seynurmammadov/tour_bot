@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 import java.io.IOException;
+
 @Component
 public class ContactHandler implements MessageHandler {
 
@@ -29,7 +30,7 @@ public class ContactHandler implements MessageHandler {
         message.setText(message.getContact().getPhoneNumber());
         AcceptedOffer acceptedOffer = acceptedOfferRepository.findById(message.getFrom().getId());
         acceptedOffer.setTelegramNumber(true);
-        acceptedOfferRepository.save(message.getFrom().getId(),acceptedOffer);
+        acceptedOfferRepository.save(message.getFrom().getId(), acceptedOffer);
         return inputMessageHandler.handle(message, bot, false);
     }
 }

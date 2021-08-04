@@ -19,5 +19,5 @@ public interface AgencyOfferRepository extends JpaRepository<AgencyOffer, Long> 
     List<AgencyOffer> getAgentOffersByUUID(String UUID);
 
     @Query("SELECT o from AgencyOffer o where o.messageId=:messageId and  o.UUID=:UUID and o.isAccepted=false")
-    Optional<AgencyOffer> getByMessageIdAndUUID(Integer messageId,String UUID);
+    Optional<AgencyOffer> getByMessageIdAndUUID(Integer messageId, String UUID);
 }
