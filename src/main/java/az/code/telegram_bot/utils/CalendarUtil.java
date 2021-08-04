@@ -55,7 +55,7 @@ public class CalendarUtil {
 
     private List<List<InlineKeyboardButton>> addDays(LocalDate date) {
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        LocalDate firstDay = date.dayOfMonth().withMinimumValue();
+        LocalDate firstDay = date;
 
         int shift = firstDay.dayOfWeek().get() - 1;
         int daysInMonth = firstDay.dayOfMonth().getMaximumValue();
