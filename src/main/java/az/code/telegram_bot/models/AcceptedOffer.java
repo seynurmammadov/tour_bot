@@ -12,6 +12,7 @@ import java.io.Serializable;
 public class AcceptedOffer implements Serializable {
     String UUID;
     String agentUsername;
+    boolean isTelegramNumber;
     String phoneNumber;
     String username;
     String firstName;

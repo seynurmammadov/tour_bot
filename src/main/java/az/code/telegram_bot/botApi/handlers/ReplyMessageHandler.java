@@ -105,6 +105,7 @@ public class ReplyMessageHandler implements MessageHandler {
                         .firstName(message.getFrom().getFirstName())
                         .lastName(message.getFrom().getLastName())
                         .username(message.getFrom().getUserName())
+                        .isTelegramNumber(false)
                         .UUID(offer.getUUID())
                         .userId(this.userId)
                         .build());

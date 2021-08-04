@@ -4,9 +4,12 @@ import az.code.telegram_bot.TelegramWebHook;
 import az.code.telegram_bot.botApi.handlers.interfaces.MessageHandler;
 import az.code.telegram_bot.botApi.handlers.interfaces.QueryHandler;
 import az.code.telegram_bot.cache.DataCache;
+import az.code.telegram_bot.models.AcceptedOffer;
 import az.code.telegram_bot.models.AgencyOffer;
+import az.code.telegram_bot.repositories.AcceptedOfferRepository;
 import az.code.telegram_bot.services.Interfaces.ListenerService;
 import az.code.telegram_bot.utils.LogUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -34,13 +37,17 @@ public class TelegramFacade {
     ListenerService listenerService;
     final
     MessageHandler replyHandler;
+    final
+    MessageHandler contactHandler;
+
 
     public TelegramFacade(DataCache dataCache,
                           @Qualifier("inputMessageHandler") MessageHandler inputMessageHandler,
                           QueryHandler callbackQueryHandler, LogUtil logUtil,
                           @Qualifier("commandHandler") MessageHandler commandHandler,
                           ListenerService listenerService,
-                          @Qualifier("replyMessageHandler") MessageHandler replyHandler) {
+                          @Qualifier("replyMessageHandler") MessageHandler replyHandler,
+                          @Qualifier("contactHandler")  MessageHandler contactHandler) {
         this.dataCache = dataCache;
         this.inputMessageHandler = inputMessageHandler;
         this.callbackQueryHandler = callbackQueryHandler;
@@ -48,6 +55,7 @@ public class TelegramFacade {
         this.commandHandler = commandHandler;
         this.listenerService = listenerService;
         this.replyHandler = replyHandler;
+        this.contactHandler = contactHandler;
     }
 
     public BotApiMethod<?> handleUpdate(Update update, TelegramWebHook bot) throws TelegramApiException, IOException {
@@ -56,18 +64,17 @@ public class TelegramFacade {
             CallbackQuery callbackQuery = update.getCallbackQuery();
             logUtil.logCallBackQuery(update, callbackQuery);
             return callbackQueryHandler.handle(callbackQuery, bot);
-        } else if(message!=null){
+        } else if (message != null) {
             return inlineMessage(bot, message);
         }
         return null;
     }
 
     private SendMessage inlineMessage(TelegramWebHook bot, Message message) throws TelegramApiException, IOException {
-        if(message.hasContact()){
-            logUtil.logNewMessage(message,"contact info");
-            message.setText(message.getContact().getPhoneNumber());
-            return inputMessageHandler.handle(message, bot, false);
-        }else  if (message.getReplyToMessage() != null) {
+        if (message.hasContact()) {
+            logUtil.logNewMessage(message, "contact info");
+            return commandHandler.handle(message, bot, false);
+        } else if (message.getReplyToMessage() != null) {
             logUtil.logNewMessage(message, "reply");
             return replyHandler.handle(message, bot, true);
         } else if (isCommand(message)) {
@@ -83,9 +90,11 @@ public class TelegramFacade {
     public void sendPhoto(AgencyOffer agencyOffer, TelegramWebHook bot) throws IOException, TelegramApiException {
         listenerService.sendPhoto(agencyOffer, bot);
     }
+
     public void sendExpiredNotification(String UUID, TelegramWebHook bot) throws TelegramApiException, IOException {
         listenerService.sendExpiredNotification(UUID, bot);
     }
+
     public boolean isCommand(Message message) {
         if (message.hasText()) {
             return message.getText().startsWith("/");
