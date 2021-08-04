@@ -69,11 +69,12 @@ public class CommandHandler implements MessageHandler {
             template.convertAndSend(RabbitMQConfig.exchange,
                     RabbitMQConfig.cancelled,
                     dataCache.getUserData(userId).getUUID());
+            Long langID =dataCache.getUserData(userId).getLangId();
             dataCache.clearDataAndState(userId);
             sessionService.deactivate(userId);
             return messageService.createNotify(chatId,
                     new StopNotifyException(),
-                    dataCache.getUserData(userId).getLangId());
+                    langID);
         } else {
             return messageService.createError(chatId,
                     new StartBeforeStopException(),
