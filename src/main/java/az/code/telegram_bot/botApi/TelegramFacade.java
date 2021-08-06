@@ -70,7 +70,7 @@ public class TelegramFacade {
     private SendMessage inlineMessage(TelegramWebHook bot, Message message) throws TelegramApiException, IOException {
         if (message.hasContact()) {
             logUtil.logNewMessage(message, "contact info");
-            return commandHandler.handle(message, bot, false);
+            return contactHandler.handle(message, bot, false);
         } else if (message.getReplyToMessage() != null) {
             logUtil.logNewMessage(message, "reply");
             return replyHandler.handle(message, bot, true);
