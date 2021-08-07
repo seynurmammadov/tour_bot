@@ -60,7 +60,7 @@ public class CalendarUtil {
         LocalDate firstDay = getDay(date);
         int shift = firstDay.dayOfWeek().get() - 1;
         int daysInMonth = firstDay.dayOfMonth().getMaximumValue();
-        int rows = ((daysInMonth + shift) % 7 > 0 ? 1 : 0) + (daysInMonth + shift) / 7;
+        int rows = ((daysInMonth + shift) % 7 > 0 ? 1 : 0) + (daysInMonth + shift-firstDay.getDayOfMonth()) / 7;
         for (int i = 0; i < rows; i++) {
             keyboard.add(buildRow(firstDay, shift));
             firstDay = firstDay.plusDays(7 - shift);
