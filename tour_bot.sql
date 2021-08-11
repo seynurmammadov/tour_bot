@@ -12,7 +12,7 @@
  Target Server Version : 130003
  File Encoding         : 65001
 
- Date: 29/07/2021 00:39:46
+ Date: 11/08/2021 15:54:08
 */
 
 
@@ -65,17 +65,6 @@ CACHE 1;
 -- ----------------------------
 DROP SEQUENCE IF EXISTS "public"."agency_offer_id_seq";
 CREATE SEQUENCE "public"."agency_offer_id_seq" 
-INCREMENT 1
-MINVALUE  1
-MAXVALUE 9223372036854775807
-START 1
-CACHE 1;
-
--- ----------------------------
--- Sequence structure for agency_offer_id_seq1
--- ----------------------------
-DROP SEQUENCE IF EXISTS "public"."agency_offer_id_seq1";
-CREATE SEQUENCE "public"."agency_offer_id_seq1" 
 INCREMENT 1
 MINVALUE  1
 MAXVALUE 9223372036854775807
@@ -281,16 +270,18 @@ MAXVALUE 9223372036854775807
 START 1
 ),
   "uuid" varchar(255) COLLATE "pg_catalog"."default",
-  "agency_name" varchar(255) COLLATE "pg_catalog"."default",
   "file_path" varchar(255) COLLATE "pg_catalog"."default",
   "message_id" int4,
-  "username" varchar(255) COLLATE "pg_catalog"."default"
+  "username" varchar(255) COLLATE "pg_catalog"."default",
+  "is_accepted" bool
 )
 ;
 
 -- ----------------------------
 -- Records of agency_offer
 -- ----------------------------
+INSERT INTO "public"."agency_offer" VALUES (101, '80b5c872-20f0-4ed5-a006-33df266f58d6', NULL, 11475, 'seynur_mmc_f3949f69-54ec-4ed2-8ab8-f1020eac7a1d', 'f');
+INSERT INTO "public"."agency_offer" VALUES (102, 'bc01523a-6393-43fb-a164-dfaa7dd92511', NULL, 11476, 'seynur_mmc_f3949f69-54ec-4ed2-8ab8-f1020eac7a1d', 'f');
 
 -- ----------------------------
 -- Table structure for bot_session
@@ -313,19 +304,15 @@ START 1
   "next_message_id" varchar(255) COLLATE "pg_catalog"."default",
   "status" bool NOT NULL,
   "expired_at" timestamp(6),
-  "waiting_answer" bool NOT NULL
+  "waiting_answer" bool NOT NULL,
+  "contact" bytea
 )
 ;
 
 -- ----------------------------
 -- Records of bot_session
 -- ----------------------------
-INSERT INTO "public"."bot_session" VALUES (39, '28fbb0d6-5bf8-4088-bac5-4d55cc3c46aa', '387071138', 387071138, 1, 1, '2021-07-28 11:14:21.011847', 'f', NULL, 'f', '2021-07-28 11:34:01.156957', 't');
-INSERT INTO "public"."bot_session" VALUES (40, '19b2e4c1-4f40-4345-bcd6-82ed0b7f2e05', '387071138', 387071138, 0, 0, '2021-07-28 11:43:16.296099', 'f', NULL, 'f', NULL, 'f');
-INSERT INTO "public"."bot_session" VALUES (73, '24b5cbb7-9224-4e24-9dc3-bdb7721c8de1', '387071138', 387071138, 1, 1, '2021-07-28 12:13:35.252168', 'f', NULL, 'f', '2021-07-28 11:22:04', 't');
-INSERT INTO "public"."bot_session" VALUES (74, '00cb511b-92ed-4324-885b-39883285468b', '387071138', 387071138, 0, 0, '2021-07-28 16:00:39.148472', 'f', NULL, 't', NULL, 'f');
-INSERT INTO "public"."bot_session" VALUES (41, '09128841-ee45-4250-9fb5-465f4fd120e8', '387071138', 387071138, 0, 0, '2021-07-28 11:45:37.279127', 'f', NULL, 'f', NULL, 'f');
-INSERT INTO "public"."bot_session" VALUES (42, '3cce11da-af31-4ba5-9e62-cf32df67db76', '387071138', 387071138, 1, 1, '2021-07-28 11:46:29.678827', 'f', NULL, 'f', '2021-07-28 10:49:04', 't');
+INSERT INTO "public"."bot_session" VALUES (198, 'b18ccf9e-9756-4bd3-ae1b-97857ab4a9ea', '387071138', 387071138, 0, 0, '2021-08-10 09:35:36.993228', 'f', NULL, 't', NULL, 'f', NULL);
 
 -- ----------------------------
 -- Table structure for languages
@@ -338,17 +325,18 @@ MINVALUE  1
 MAXVALUE 9223372036854775807
 START 1
 ),
-  "lang" varchar(255) COLLATE "pg_catalog"."default"
+  "lang" varchar(255) COLLATE "pg_catalog"."default",
+  "keyword" varchar(255) COLLATE "pg_catalog"."default"
 )
 ;
 
 -- ----------------------------
 -- Records of languages
 -- ----------------------------
-INSERT INTO "public"."languages" VALUES (3, '🇬🇧 English 🇬🇧');
-INSERT INTO "public"."languages" VALUES (1, '🇷🇺 Русский язык 🇷🇺');
-INSERT INTO "public"."languages" VALUES (4, 'no lang');
-INSERT INTO "public"."languages" VALUES (2, '🇦🇿 Azərbaycan dili 🇦🇿');
+INSERT INTO "public"."languages" VALUES (3, '🇬🇧 English 🇬🇧', 'EN');
+INSERT INTO "public"."languages" VALUES (1, '🇷🇺 Русский язык 🇷🇺', 'RU');
+INSERT INTO "public"."languages" VALUES (4, 'no lang', 'EN');
+INSERT INTO "public"."languages" VALUES (2, '🇦🇿 Azərbaycan dili 🇦🇿', 'AZ');
 
 -- ----------------------------
 -- Table structure for question_translates
@@ -379,21 +367,15 @@ INSERT INTO "public"."question_translates" VALUES (36, 'Do you want to enter a p
 INSERT INTO "public"."question_translates" VALUES (37, 'Введите номер телефона.', 1, 13);
 INSERT INTO "public"."question_translates" VALUES (38, 'Telefon nömrənizi daxil edin.', 2, 13);
 INSERT INTO "public"."question_translates" VALUES (39, 'Enter your phone number.', 3, 13);
-INSERT INTO "public"."question_translates" VALUES (40, 'Спасибо за использование нашего бота. Скоро агентство с вами свяжется!', 1, 14);
-INSERT INTO "public"."question_translates" VALUES (41, 'Botumuzu istifadə etdiyiniz üçün təşəkkür edirik. Agentlik tezliklə sizinlə əlaqə quracaq!', 2, 14);
 INSERT INTO "public"."question_translates" VALUES (4, 'Səyahətin tipin seçin', 2, 2);
 INSERT INTO "public"."question_translates" VALUES (6, 'Select the type of trip', 3, 2);
 INSERT INTO "public"."question_translates" VALUES (5, 'Выберите тип поездки', 1, 2);
-INSERT INTO "public"."question_translates" VALUES (1, '🇷🇺 Добро пожаловать в бот TurAl! Пожалуйста, выберите язык.', 4, 1);
-INSERT INTO "public"."question_translates" VALUES (2, '🇦🇿 TurAl bot-a xoş gəldiniz! Zəhmət olmasa dili seçin.', 4, 1);
-INSERT INTO "public"."question_translates" VALUES (3, '🇬🇧 Welcome to the TurAl bot! Please select a language.', 4, 1);
 INSERT INTO "public"."question_translates" VALUES (8, 'Hara getmək isləyirsiniz?', 2, 3);
 INSERT INTO "public"."question_translates" VALUES (7, 'Куда вы хотите пойти?', 1, 3);
 INSERT INTO "public"."question_translates" VALUES (9, 'Where do you want to go?', 3, 3);
 INSERT INTO "public"."question_translates" VALUES (11, 'Hansı şəhərdən yollanacaqsız ?', 2, 4);
 INSERT INTO "public"."question_translates" VALUES (10, 'Из какого города вы отправляетесь?', 1, 4);
 INSERT INTO "public"."question_translates" VALUES (12, 'From which city do you go?', 3, 4);
-INSERT INTO "public"."question_translates" VALUES (42, 'Thanks for using our bot. The agency will contact you soon!', 3, 14);
 INSERT INTO "public"."question_translates" VALUES (43, 'Для того чтобы агентство с вами связалась нам нужна контактная информация телеграм.', 1, 15);
 INSERT INTO "public"."question_translates" VALUES (15, 'Enter your travel date.', 3, 5);
 INSERT INTO "public"."question_translates" VALUES (44, 'Agentliyin sizinlə əlaqə qurması üçün telegram əlaqə məlumatlarına ehtiyacımız var.', 2, 15);
@@ -407,9 +389,6 @@ INSERT INTO "public"."question_translates" VALUES (19, '
 INSERT INTO "public"."question_translates" VALUES (21, 'What budget do you want to allocate for the trip?', 3, 7);
 INSERT INTO "public"."question_translates" VALUES (20, '
 Səfər üçün hansı büdcə ayırmaq istəyirsiniz?', 2, 7);
-INSERT INTO "public"."question_translates" VALUES (23, 'Əla! Qısa zamanda TurAl sizə təkliflər göndərəcək!', 2, 8);
-INSERT INTO "public"."question_translates" VALUES (24, 'Excellent! TurAl will send you offers as soon as possible!', 3, 8);
-INSERT INTO "public"."question_translates" VALUES (22, 'Отлично! TurAl отправит вам предложения в кратчайшие сроки!', 1, 8);
 INSERT INTO "public"."question_translates" VALUES (26, 'Введите дату возвращения.', 1, 9);
 INSERT INTO "public"."question_translates" VALUES (27, 'Enter the return date.', 3, 9);
 INSERT INTO "public"."question_translates" VALUES (25, 'Qayıtma tarixin daxil edin.', 2, 9);
@@ -417,6 +396,16 @@ INSERT INTO "public"."question_translates" VALUES (14, 'Səyahət tarixin daxil 
 INSERT INTO "public"."question_translates" VALUES (28, 'Введите название места в которую вы хотите отправиться.', 1, 10);
 INSERT INTO "public"."question_translates" VALUES (29, 'Səyahət etmək istədiyiniz yerin adını daxil edin.', 2, 10);
 INSERT INTO "public"."question_translates" VALUES (30, 'Enter the name of the place you want to travel to.', 3, 10);
+INSERT INTO "public"."question_translates" VALUES (24, 'Excellent! TourApp will send you offers as soon as possible!', 3, 8);
+INSERT INTO "public"."question_translates" VALUES (22, 'Отлично! TourApp отправит вам предложения в кратчайшие сроки!', 1, 8);
+INSERT INTO "public"."question_translates" VALUES (41, 'Seçdiyiniz agentlik qısa müddətdə sizinlə əlaqə saxlayacaq, ancaq təklifləri seçməyə davam edə bilərsiniz.', 2, 14);
+INSERT INTO "public"."question_translates" VALUES (42, '
+The agency of your choice will contact you shortly, but you can also continue to select offers.', 3, 14);
+INSERT INTO "public"."question_translates" VALUES (40, 'Выбранное агентство скоро с вами свяжется, но вы так же можете продолжить выбирать предложения.', 1, 14);
+INSERT INTO "public"."question_translates" VALUES (2, '🇦🇿 TourApp bot-a xoş gəldiniz! Zəhmət olmasa dili seçin.', 4, 1);
+INSERT INTO "public"."question_translates" VALUES (3, '🇬🇧 Welcome to the TourApp bot! Please select a language.', 4, 1);
+INSERT INTO "public"."question_translates" VALUES (1, '🇷🇺 Добро пожаловать в бот TourApp! Пожалуйста, выберите язык.', 4, 1);
+INSERT INTO "public"."question_translates" VALUES (23, 'Əla! Qısa zamanda TourApp sizə təkliflər göndərəcək!', 2, 8);
 
 -- ----------------------------
 -- Table structure for questions
@@ -488,14 +477,7 @@ SELECT setval('"public"."actions_id_seq1"', 2, false);
 -- ----------------------------
 ALTER SEQUENCE "public"."agency_offer_id_seq"
 OWNED BY "public"."agency_offer"."id";
-SELECT setval('"public"."agency_offer_id_seq"', 441, true);
-
--- ----------------------------
--- Alter sequences owned by
--- ----------------------------
-ALTER SEQUENCE "public"."agency_offer_id_seq1"
-OWNED BY "public"."agency_offer"."id";
-SELECT setval('"public"."agency_offer_id_seq1"', 44, true);
+SELECT setval('"public"."agency_offer_id_seq"', 103, true);
 
 -- ----------------------------
 -- Alter sequences owned by
@@ -509,7 +491,7 @@ SELECT setval('"public"."bot_session_id_seq"', 76, true);
 -- ----------------------------
 ALTER SEQUENCE "public"."bot_session_id_seq1"
 OWNED BY "public"."bot_session"."id";
-SELECT setval('"public"."bot_session_id_seq1"', 75, true);
+SELECT setval('"public"."bot_session_id_seq1"', 199, true);
 
 -- ----------------------------
 -- Alter sequences owned by

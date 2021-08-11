@@ -109,7 +109,7 @@ class TelegramBotApplicationTests {
 
     @Test
     @DisplayName("Get Actions translate by id")
-    void getActionsTranslate() {
+    void getActionsTranlate() {
         Set<Action> actions = new HashSet<>();
         Set<ActionTranslate> actionTranslates = getActionTranslates();
         List<Language> languages = getLanguages();
